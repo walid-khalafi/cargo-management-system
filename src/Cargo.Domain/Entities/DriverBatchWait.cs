@@ -4,62 +4,74 @@ using Cargo.Domain.Enums;
 namespace Cargo.Domain.Entities
 {
     /// <summary>
-    /// Represents a wait entry in a driver batch statement.
+    /// Represents a wait entry in a driver batch statement, matching PDF/Excel data for audit.
     /// </summary>
     public class DriverBatchWait : BaseEntity
     {
+        // Identifiers
+        public string DarNumber { get; private set; }
+        public string CpPoNumber { get; private set; }
+
+        // Wait details
+        public WaitType WaitType { get; private set; }
+        public int WaitMinutes { get; private set; }
+        public decimal RatePerMinute { get; private set; }
+        public decimal Multiplier { get; private set; } = 1.0m;
+
+        // Snapshot pay breakdown
         /// <summary>
-        /// Gets or sets the DAR number.
+        /// Raw wait pay before applying the batch's payout percentage.
         /// </summary>
-        public string DarNumber { get; set; }
+        public decimal RawPay { get; private set; }
 
         /// <summary>
-        /// Gets or sets the CP PO number.
+        /// Final pay after applying the batch's payout percentage (WaitingTotal contribution).
+        /// Stored if imported; otherwise computed dynamically by DriverBatch.
         /// </summary>
-        public string CpPoNumber { get; set; }
+        public decimal FinalPay { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the wait type.
-        /// </summary>
-        public WaitType WaitType { get; set; }
+        // FK
+        public Guid DriverBatchId { get; private set; }
+        public virtual DriverBatch DriverBatch { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the wait time in minutes.
-        /// </summary>
-        public int WaitMinutes { get; set; }
+        private DriverBatchWait() { } // EF
 
-        /// <summary>
-        /// Gets or sets the rate per minute.
-        /// </summary>
-        public decimal RatePerMinute { get; set; }
-
-        /// <summary>
-        /// Gets or sets the multiplier for the wait pay calculation.
-        /// </summary>
-        public decimal Multiplier { get; set; } = 1.0m;
-
-        /// <summary>
-        /// Gets or sets the wait pay amount.
-        /// </summary>
-        public decimal WaitPay { get; set; }
-
-        /// <summary>
-        /// Gets or sets the foreign key for the associated driver batch.
-        /// </summary>
-        public Guid DriverBatchId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the associated driver batch.
-        /// </summary>
-        public DriverBatch DriverBatch { get; set; }
-
-        /// <summary>
-        /// Calculates the raw pay for this wait entry.
-        /// </summary>
-        /// <returns>The calculated raw pay.</returns>
-        public decimal CalculateRawPay()
+        public DriverBatchWait(
+            string darNumber,
+            string cpPoNumber,
+            WaitType waitType,
+            int waitMinutes,
+            decimal ratePerMinute,
+            decimal multiplier = 1.0m,
+            decimal? rawPayFromInvoice = null,
+            decimal? finalPayFromInvoice = null)
         {
-            return WaitMinutes * RatePerMinute * Multiplier;
+            if (waitMinutes < 0) throw new ArgumentOutOfRangeException(nameof(waitMinutes));
+            if (ratePerMinute < 0) throw new ArgumentOutOfRangeException(nameof(ratePerMinute));
+            if (multiplier <= 0) throw new ArgumentOutOfRangeException(nameof(multiplier));
+
+            DarNumber = darNumber;
+            CpPoNumber = cpPoNumber;
+            WaitType = waitType;
+            WaitMinutes = waitMinutes;
+            RatePerMinute = ratePerMinute;
+            Multiplier = multiplier;
+
+            RawPay = rawPayFromInvoice.HasValue
+                ? Round2(rawPayFromInvoice.Value)
+                : Round2(WaitMinutes * RatePerMinute * Multiplier);
+
+            FinalPay = finalPayFromInvoice.HasValue
+                ? Round2(finalPayFromInvoice.Value)
+                : RawPay; // Will be adjusted by DriverBatch.WaitingPayoutPercentage
         }
+
+        /// <summary>
+        /// Recalculates raw pay (before payout %) based on minutes, rate, and multiplier.
+        /// </summary>
+        public decimal CalculateRawPay() => RawPay;
+
+        private static decimal Round2(decimal value) =>
+            Math.Round(value, 2, MidpointRounding.AwayFromZero);
     }
 }

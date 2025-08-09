@@ -1,119 +1,138 @@
-// ==================================================================================
-// ENTITY: DriverVehicleAssignment
-// ==================================================================================
-// Purpose: Represents the assignment relationship between drivers and vehicles
-// This entity tracks which drivers are assigned to which vehicles, including
-// assignment dates, roles, and status information
-// ==================================================================================
-
 using System;
-using Cargo.Domain.Entities;
 using Cargo.Domain.Enums;
 
 namespace Cargo.Domain.Entities
 {
     /// <summary>
-    /// Represents a driver-vehicle assignment in the cargo management system
-    /// This entity manages the many-to-many relationship between drivers and vehicles
-    /// with additional assignment details
+    /// Represents the assignment of a driver to a vehicle in the cargo management system.
+    /// Tracks history with assignment dates, roles, status, and optional end reason.
+    /// Acts as a historical record rather than overwriting current assignments.
     /// </summary>
     public class DriverVehicleAssignment : BaseEntity
     {
         /// <summary>
-        /// Initializes a new instance of the DriverVehicleAssignment class
+        /// Unique identifier for this assignment record.
         /// </summary>
-        public DriverVehicleAssignment()
+        public Guid Id { get; private set; }
+
+        /// <summary>
+        /// Foreign key to the assigned driver.
+        /// </summary>
+        public Guid DriverId { get; private set; }
+
+        /// <summary>
+        /// Navigation property to the assigned driver.
+        /// </summary>
+        public virtual Driver Driver { get; private set; }
+
+        /// <summary>
+        /// Foreign key to the assigned vehicle.
+        /// </summary>
+        public Guid VehicleId { get; private set; }
+
+        /// <summary>
+        /// Navigation property to the assigned vehicle.
+        /// </summary>
+        public virtual Vehicle Vehicle { get; private set; }
+
+        /// <summary>
+        /// Role of the driver in this assignment (e.g., Primary, Secondary, Backup).
+        /// </summary>
+        public DriverRoleType DriverRole { get; private set; }
+
+        /// <summary>
+        /// UTC date and time when the assignment began.
+        /// </summary>
+        public DateTime AssignedAt { get; private set; }
+
+        /// <summary>
+        /// UTC date and time when the assignment ended (null if ongoing).
+        /// </summary>
+        public DateTime? EndedAt { get; private set; }
+
+        /// <summary>
+        /// Reason the assignment ended (if applicable).
+        /// </summary>
+        public string EndReason { get; private set; }
+
+        /// <summary>
+        /// Current status of the assignment (e.g., Active, Completed, Cancelled).
+        /// </summary>
+        public AssignmentStatus Status { get; private set; }
+
+        /// <summary>
+        /// Additional notes about the assignment.
+        /// </summary>
+        public string Notes { get; private set; }
+
+        private DriverVehicleAssignment() { } // EF Core
+
+        /// <summary>
+        /// Creates a new driver-vehicle assignment record.
+        /// </summary>
+        public DriverVehicleAssignment(
+            Guid driverId,
+            Guid vehicleId,
+            string driverRole,
+            string notes = null)
         {
+            if (driverId == Guid.Empty) throw new ArgumentException("Driver ID cannot be empty.", nameof(driverId));
+            if (vehicleId == Guid.Empty) throw new ArgumentException("Vehicle ID cannot be empty.", nameof(vehicleId));
+            if (string.IsNullOrWhiteSpace(driverRole)) throw new ArgumentException("Driver role is required.", nameof(driverRole));
+
             Id = Guid.NewGuid();
+            DriverId = driverId;
+            VehicleId = vehicleId;
+            DriverRole = driverRole;
+            Notes = notes;
+
             AssignedAt = DateTime.UtcNow;
             Status = AssignmentStatus.Active;
         }
 
         /// <summary>
-        /// Gets or sets the unique identifier for the assignment
+        /// Returns true if the assignment is active and not ended.
         /// </summary>
-        public Guid Id { get; set; }
+        public bool IsActive() => Status == AssignmentStatus.Active && !EndedAt.HasValue;
 
         /// <summary>
-        /// Gets or sets the foreign key for the driver
+        /// Returns true if the assignment has an end date.
         /// </summary>
-        public Guid DriverId { get; set; }
+        public bool IsCompleted() => EndedAt.HasValue;
 
         /// <summary>
-        /// Gets or sets the driver assigned to the vehicle
+        /// Ends the assignment, providing a reason.
         /// </summary>
-        public virtual Driver Driver { get; set; }
-
-        /// <summary>
-        /// Gets or sets the foreign key for the vehicle
-        /// </summary>
-        public Guid VehicleId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the vehicle being assigned to the driver
-        /// </summary>
-        public virtual Vehicle Vehicle { get; set; }
-
-        /// <summary>
-        /// Gets or sets the role of the driver for this assignment (Primary, Secondary, Backup, etc.)
-        /// </summary>
-        public string DriverRole { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date when the assignment was made
-        /// </summary>
-        public DateTime AssignedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date when the assignment ends (null for ongoing assignments)
-        /// </summary>
-        public DateTime? EndedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the reason for ending the assignment
-        /// </summary>
-        public string EndReason { get; set; }
-
-        /// <summary>
-        /// Gets or sets the assignment status
-        /// </summary>
-        public AssignmentStatus Status { get; set; }
-
-        /// <summary>
-        /// Gets or sets any additional notes about the assignment
-        /// </summary>
-        public string Notes { get; set; }
-
-        /// <summary>
-        /// Determines if the assignment is currently active
-        /// </summary>
-        /// <returns>True if the assignment is active and not ended</returns>
-        public bool IsActive()
+        public void EndAssignment(string reason)
         {
-            return Status == AssignmentStatus.Active && !EndedAt.HasValue;
+            if (!IsActive())
+                throw new InvalidOperationException("Cannot end an assignment that is not active.");
+
+            EndedAt = DateTime.UtcNow;
+            EndReason = reason;
+            Status = AssignmentStatus.Completed;
         }
 
         /// <summary>
-        /// Determines if the assignment has been completed
+        /// Cancels the assignment before it starts or without completion.
         /// </summary>
-        /// <returns>True if the assignment has an end date</returns>
-        public bool IsCompleted()
+        public void CancelAssignment(string reason)
         {
-            return EndedAt.HasValue;
+            if (!IsActive())
+                throw new InvalidOperationException("Cannot cancel an assignment that is not active.");
+
+            EndedAt = DateTime.UtcNow;
+            EndReason = reason;
+            Status = AssignmentStatus.Cancelled;
         }
 
         /// <summary>
-        /// Calculates the duration of the assignment
+        /// Returns the total duration of the assignment.
         /// </summary>
-        /// <returns>TimeSpan representing the assignment duration</returns>
         public TimeSpan GetAssignmentDuration()
         {
-            if (!EndedAt.HasValue)
-                return DateTime.UtcNow - AssignedAt;
-
-            return EndedAt.Value - AssignedAt;
+            var end = EndedAt ?? DateTime.UtcNow;
+            return end - AssignedAt;
         }
     }
-
-
 }

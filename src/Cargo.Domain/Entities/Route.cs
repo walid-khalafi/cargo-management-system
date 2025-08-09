@@ -6,6 +6,7 @@
 // waypoints, distance, time estimates, and operational details
 // ==================================================================================
 
+using Cargo.Domain.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -25,7 +26,7 @@ namespace Cargo.Domain.Entities
         {
             Id = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
-            Status = "Active";
+            Status =  RouteStatus.Active;
             Waypoints = new List<string>();
             EstimatedFuelCost = 0;
             EstimatedTollCost = 0;
@@ -86,12 +87,12 @@ namespace Cargo.Domain.Entities
         /// <summary>
         /// Gets or sets the route type (Highway, Local, Mixed, etc.)
         /// </summary>
-        public string RouteType { get; set; }
+        public RouteType RouteType { get; set; }
 
         /// <summary>
         /// Gets or sets the route status (Active, Inactive, Archived)
         /// </summary>
-        public string Status { get; set; }
+        public RouteStatus Status { get; set; }
 
         /// <summary>
         /// Gets or sets the date when the route was created
@@ -128,7 +129,7 @@ namespace Cargo.Domain.Entities
         /// <returns>True if the route is active and within effective date range</returns>
         public bool IsActive()
         {
-            return Status == "Active";
+            return Status == RouteStatus.Active;
         }
 
         /// <summary>

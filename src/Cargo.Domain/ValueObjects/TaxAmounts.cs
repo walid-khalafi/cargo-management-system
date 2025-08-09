@@ -57,7 +57,7 @@ namespace Cargo.Domain.ValueObjects
         /// <returns>A new instance of <see cref="TaxAmounts"/> with calculated tax amounts.</returns>
         /// <exception cref="ArgumentNullException">Thrown when profile is null.</exception>
         /// <exception cref="ArgumentException">Thrown when taxableBase is negative.</exception>
-        public static TaxAmounts Calculate(decimal taxableBase, TaxProfile profile, int decimals = 2)
+        public static TaxAmounts Calculate(decimal taxableBase, TaxProfile profile, int decimals = 2, MidpointRounding awayFromZero = default)
         {
             if (profile == null)
                 throw new ArgumentNullException(nameof(profile));

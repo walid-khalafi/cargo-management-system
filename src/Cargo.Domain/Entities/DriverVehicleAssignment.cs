@@ -73,12 +73,12 @@ namespace Cargo.Domain.Entities
         public DriverVehicleAssignment(
             Guid driverId,
             Guid vehicleId,
-            string driverRole,
+            DriverRoleType driverRole,
             string notes = null)
         {
             if (driverId == Guid.Empty) throw new ArgumentException("Driver ID cannot be empty.", nameof(driverId));
             if (vehicleId == Guid.Empty) throw new ArgumentException("Vehicle ID cannot be empty.", nameof(vehicleId));
-            if (string.IsNullOrWhiteSpace(driverRole)) throw new ArgumentException("Driver role is required.", nameof(driverRole));
+          
 
             Id = Guid.NewGuid();
             DriverId = driverId;

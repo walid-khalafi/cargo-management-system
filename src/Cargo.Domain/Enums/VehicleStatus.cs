@@ -65,6 +65,10 @@ namespace Cargo.Domain.Enums
         /// <summary>
         /// Vehicle is empty and returning to depot or next pickup location
         /// </summary>
-        EmptyReturn = 10
+        EmptyReturn = 10,
+        /// <summary>
+        /// Vehicle is Assigned to Driver
+        /// </summary>
+        Assigned = 11
     }
 }

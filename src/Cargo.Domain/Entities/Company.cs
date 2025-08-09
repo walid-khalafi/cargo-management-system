@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cargo.Domain.ValueObjects;
 
 namespace Cargo.Domain.Entities
 {
@@ -19,9 +20,14 @@ namespace Cargo.Domain.Entities
         public string RegistrationNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets the tax code of the company.
+        /// Gets or sets the company's physical address.
         /// </summary>
-        public string TaxCode { get; set; }
+        public Address Address { get; set; }
+
+        /// <summary>
+        /// Gets or sets the tax profile for this company.
+        /// </summary>
+        public TaxProfile TaxProfile { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of drivers associated with this company.
@@ -40,6 +46,8 @@ namespace Cargo.Domain.Entities
         {
             Drivers = new HashSet<Driver>();
             Vehicles = new HashSet<VehicleOwnership>();
+            Address = new Address();
+            TaxProfile = TaxProfile.CreateQuebecProfile(); // Default to Quebec profile
         }
     }
 }

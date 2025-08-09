@@ -1,179 +1,109 @@
-using System;
+using Cargo.Domain.Enums;
 
 namespace Cargo.Domain.ValueObjects
 {
     /// <summary>
-    /// Represents a geographic location as a value object in the cargo management system.
-    /// This value object encapsulates all location-related information including coordinates,
-    /// address details, and additional metadata for precise location tracking.
+    /// Represents a geographic location within the cargo management system,
+    /// including coordinates, address, and additional metadata.
     /// </summary>
-    public class Location
+    public record Location
     {
         /// <summary>
-        /// Initializes a new instance of the Location class with default values
+        /// Initializes a new instance of the <see cref="Location"/> record.
+        /// Coordinates are validated on creation.
         /// </summary>
-        public Location()
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when latitude or longitude are out of range.
+        /// </exception>
+        public Location(
+            double latitude,
+            double longitude,
+            Address address,
+            LocationType locationType,
+            double accuracy = 0,
+            double? altitude = null,
+            string? timezone = null,
+            string? facilityName = null,
+            string? contactPhone = null,
+            string? contactEmail = null,
+            OperatingHours? operatingHours = null)
         {
-            Id = Guid.NewGuid();
-            CreatedAt = DateTime.UtcNow;
-            Accuracy = 0;
-            IsVerified = false;
+            if (latitude < -90 || latitude > 90)
+                throw new ArgumentOutOfRangeException(nameof(latitude), "Latitude must be between -90 and 90.");
+            if (longitude < -180 || longitude > 180)
+                throw new ArgumentOutOfRangeException(nameof(longitude), "Longitude must be between -180 and 180.");
+
+            Latitude = latitude;
+            Longitude = longitude;
+            Address = address ?? throw new ArgumentNullException(nameof(address));
+            LocationType = locationType;
+            Accuracy = accuracy;
+            Altitude = altitude;
+            Timezone = timezone;
+            FacilityName = facilityName;
+            ContactPhone = contactPhone;
+            ContactEmail = contactEmail;
+            OperatingHours = operatingHours;
         }
 
-        /// <summary>
-        /// Gets or sets the unique identifier for this location instance
-        /// </summary>
-        public Guid Id { get; set; }
+        /// <summary>Latitude in decimal degrees (-90 to 90).</summary>
+        public double Latitude { get; init; }
 
-        /// <summary>
-        /// Gets or sets the latitude coordinate in decimal degrees (-90 to 90)
-        /// </summary>
-        public double Latitude { get; set; }
+        /// <summary>Longitude in decimal degrees (-180 to 180).</summary>
+        public double Longitude { get; init; }
 
-        /// <summary>
-        /// Gets or sets the longitude coordinate in decimal degrees (-180 to 180)
-        /// </summary>
-        public double Longitude { get; set; }
+        /// <summary>Physical address details for this location.</summary>
+        public Address Address { get; init; }
 
-        /// <summary>
-        /// Gets or sets the street address or detailed location description
-        /// </summary>
-        public string Address { get; set; }
+        /// <summary>Location accuracy in meters (GPS precision).</summary>
+        public double Accuracy { get; init; }
 
-        /// <summary>
-        /// Gets or sets the city or town name
-        /// </summary>
-        public string City { get; set; }
+        /// <summary>Altitude in meters above sea level (optional).</summary>
+        public double? Altitude { get; init; }
 
-        /// <summary>
-        /// Gets or sets the state, province, or region
-        /// </summary>
-        public string State { get; set; }
+        /// <summary>Timezone identifier (e.g., "Europe/Berlin").</summary>
+        public string? Timezone { get; init; }
 
-        /// <summary>
-        /// Gets or sets the postal or ZIP code
-        /// </summary>
-        public string PostalCode { get; set; }
+        /// <summary>Type of location in the logistics domain.</summary>
+        public LocationType LocationType { get; init; }
 
-        /// <summary>
-        /// Gets or sets the country name
-        /// </summary>
-        public string Country { get; set; }
+        /// <summary>Facility or building name.</summary>
+        public string? FacilityName { get; init; }
 
-        /// <summary>
-        /// Gets or sets the location accuracy in meters (GPS accuracy)
-        /// </summary>
-        public double Accuracy { get; set; }
+        /// <summary>Contact phone number for this location.</summary>
+        public string? ContactPhone { get; init; }
 
-        /// <summary>
-        /// Gets or sets the altitude in meters above sea level
-        /// </summary>
-        public double? Altitude { get; set; }
+        /// <summary>Contact email address for this location.</summary>
+        public string? ContactEmail { get; init; }
 
-        /// <summary>
-        /// Gets or sets the timezone identifier (e.g., "America/New_York")
-        /// </summary>
-        public string Timezone { get; set; }
+        /// <summary>Operating hours for the location (structured).</summary>
+        public OperatingHours? OperatingHours { get; init; }
 
-        /// <summary>
-        /// Gets or sets the location type (e.g., "Warehouse", "Depot", "Customer", "Port")
-        /// </summary>
-        public string LocationType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the facility or building name
-        /// </summary>
-        public string FacilityName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the contact phone number for this location
-        /// </summary>
-        public string ContactPhone { get; set; }
-
-        /// <summary>
-        /// Gets or sets the contact email for this location
-        /// </summary>
-        public string ContactEmail { get; set; }
-
-        /// <summary>
-        /// Gets or sets the operating hours for this location
-        /// </summary>
-        public string OperatingHours { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date when this location was created
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date when this location was last updated
-        /// </summary>
-        public DateTime? UpdatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether this location has been verified for accuracy
-        /// </summary>
-        public bool IsVerified { get; set; }
-
-        /// <summary>
-        /// Gets the full formatted address as a single string
-        /// </summary>
-        public string FullAddress => $"{Address}, {City}, {State} {PostalCode}, {Country}".Trim();
-
-        /// <summary>
-        /// Gets the location coordinates as a formatted string
-        /// </summary>
+        /// <summary>Formatted latitude/longitude coordinates.</summary>
         public string Coordinates => $"{Latitude:F6}, {Longitude:F6}";
 
-        /// <summary>
-        /// Gets the Google Maps URL for this location
-        /// </summary>
+        /// <summary>Google Maps link for this location.</summary>
         public string GoogleMapsUrl => $"https://www.google.com/maps?q={Latitude},{Longitude}";
 
         /// <summary>
-        /// Calculates the distance to another location using the Haversine formula
+        /// Validates that the location has a valid address and coordinates.
         /// </summary>
-        /// <param name="other">The target location</param>
-        /// <returns>Distance in kilometers</returns>
-        public double DistanceTo(Location other)
-        {
-            if (other == null) return 0;
-
-            const double earthRadius = 6371; // Earth's radius in kilometers
-            var lat1 = Latitude * Math.PI / 180;
-            var lat2 = other.Latitude * Math.PI / 180;
-            var deltaLat = (other.Latitude - Latitude) * Math.PI / 180;
-            var deltaLon = (other.Longitude - Longitude) * Math.PI / 180;
-
-            var a = Math.Sin(deltaLat / 2) * Math.Sin(deltaLat / 2) +
-                    Math.Cos(lat1) * Math.Cos(lat2) *
-                    Math.Sin(deltaLon / 2) * Math.Sin(deltaLon / 2);
-            var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-            return earthRadius * c;
-        }
-
-        /// <summary>
-        /// Determines if the location is valid (has coordinates and address)
-        /// </summary>
-        /// <returns>True if the location has valid coordinates and address</returns>
         public bool IsValid()
         {
-            return !string.IsNullOrWhiteSpace(Address) &&
-                   !string.IsNullOrWhiteSpace(City) &&
-                   !string.IsNullOrWhiteSpace(State) &&
-                   !string.IsNullOrWhiteSpace(Country) &&
-                   Latitude >= -90 && Latitude <= 90 &&
-                   Longitude >= -180 && Longitude <= 180;
+            return Address.IsValid();
         }
 
         /// <summary>
-        /// Returns a string representation of the location
+        /// Returns a formatted string combining address and coordinates.
         /// </summary>
-        /// <returns>Formatted string with location details</returns>
         public override string ToString()
         {
-            return $"{FullAddress} ({Coordinates})";
+            return $"{Address.FullAddress} ({Coordinates})";
         }
     }
+
+    /// <summary>
+    /// Represents opening and closing times for a facility.
+    /// </summary>
+    public record OperatingHours(string OpenTime, string CloseTime);
 }

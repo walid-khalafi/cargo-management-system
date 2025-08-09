@@ -7,8 +7,8 @@ using Cargo.Domain.ValueObjects;
 namespace Cargo.Domain.Entities
 {
     /// <summary>
-    /// Represents a batch statement for a driver, containing payment and activity details.
-    /// Acts as an aggregate root.
+    /// Aggregate root: driver statement(batch) with snapshot of rates, ownership, and taxes.
+    /// Matches Excel/PDF columns and preserves historical correctness.
     /// </summary>
     public class DriverBatch : BaseEntity
     {
@@ -16,156 +16,109 @@ namespace Cargo.Domain.Entities
         private readonly List<DriverBatchWait> _waits;
         private readonly List<DriverBatchHourly> _hourlies;
 
-        /// <summary>
-        /// Gets the batch number identifier.
-        /// </summary>
+        // Identity & period
         public string BatchNumber { get; private set; }
-
-        /// <summary>
-        /// Gets the driver associated with this batch.
-        /// </summary>
-        public Driver Driver { get; private set; }
-
-        /// <summary>
-        /// Gets the foreign key for the associated driver.
-        /// </summary>
         public Guid DriverId { get; private set; }
-
-        /// <summary>
-        /// Gets the start date of the statement period.
-        /// </summary>
+        public virtual Driver Driver { get; private set; }
         public DateTime StatementStartDate { get; private set; }
-
-        /// <summary>
-        /// Gets the end date of the statement period.
-        /// </summary>
         public DateTime StatementEndDate { get; private set; }
 
-        /// <summary>
-        /// Gets the dray pay amount.
-        /// </summary>
+        // OPTIONAL: Link to the specific vehicle ownership used in this batch (for audit)
+        public Guid? VehicleOwnershipId { get; private set; }
+        public virtual VehicleOwnership? VehicleOwnership { get; private set; }
+
+        // Snapshot of ownership at the time of the batch (to drive commission/admin rules)
+        public OwnershipType OwnershipTypeAtBatch { get; private set; } = OwnershipType.OwnedByFleet;
+
+        // Dray components (if your template/Gross includes them; otherwise keep 0)
         public decimal DrayPay { get; private set; }
-
-        /// <summary>
-        /// Gets the dray fuel surcharge amount.
-        /// </summary>
         public decimal DrayFsc { get; private set; }
-
-        /// <summary>
-        /// Gets the temporary emergency fuel surcharge amount.
-        /// </summary>
         public decimal TemporaryEmergencyFsc { get; private set; }
+        public decimal DrayTotal => Round2(DrayPay + DrayFsc + TemporaryEmergencyFsc);
 
-        /// <summary>
-        /// Gets the wait pay amount.
-        /// </summary>
-        public decimal WaitPay { get; private set; }
-
-        /// <summary>
-        /// Gets the total pay amount.
-        /// </summary>
-        public decimal TotalPay => NetPay;
-
-        /// <summary>
-        /// Gets the collection of load details associated with this batch.
-        /// </summary>
-        public IReadOnlyCollection<DriverBatchLoad> Loads => _loads.AsReadOnly();
-
-        /// <summary>
-        /// Gets the collection of wait details associated with this batch.
-        /// </summary>
-        public IReadOnlyCollection<DriverBatchWait> Waits => _waits.AsReadOnly();
-
-        /// <summary>
-        /// Gets the collection of hourly details associated with this batch.
-        /// </summary>
-        public IReadOnlyCollection<DriverBatchHourly> Hourlies => _hourlies.AsReadOnly();
-
-        /// <summary>
-        /// Gets the total trip pay computed from loads.
-        /// </summary>
-        public decimal TripTotal { get; private set; }
-
-        /// <summary>
-        /// Gets the raw total waiting pay before payout percentage.
-        /// </summary>
-        public decimal WaitingRawTotal { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the waiting payout percentage (e.g., 0.5m for 50%).
-        /// </summary>
+        // Waiting payout factor (e.g., 0.5m for 50%)
         public decimal WaitingPayoutPercentage { get; private set; }
 
-        /// <summary>
-        /// Gets the total waiting pay after applying payout percentage.
-        /// </summary>
-        public decimal WaitingTotal { get; private set; }
-
-        /// <summary>
-        /// Gets the total hourly pay.
-        /// </summary>
-        public decimal HourlyTotal { get; private set; }
-
-        /// <summary>
-        /// Gets the gross revenue (sum of trip, waiting, and hourly totals).
-        /// </summary>
-        public decimal GrossRevenue { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the driver share percentage (e.g., 0.40m for 40%).
-        /// </summary>
+        // Commission / Share for company drivers (e.g., 0.40m == 40%)
+        // For owner-operators set to 1.0m typically.
         public decimal DriverSharePercentage { get; private set; }
 
-        /// <summary>
-        /// Gets the driver share amount computed from gross revenue.
-        /// </summary>
+        // Admin fee snapshot (applies to owner-operators; percent in 0..1, flat in currency)
+        public decimal AdminFeePercent { get; private set; } // e.g., 0.07m for 7%; set 0 if not used
+        public decimal AdminFeeFlat { get; private set; }    // fixed amount; 0 if not used
+        public bool AdminFeeAppliesBeforeTaxes { get; private set; } // default false
+
+        // Adjustments (e.g., Truckwash -20) applied after taxes by default
+        public decimal AdjustmentsTotal { get; private set; }
+
+        // Snapshot tax profile (store rates and rules exactly as used on invoice)
+        public TaxProfile TaxProfile { get; private set; }
+
+        // Collections
+        public IReadOnlyCollection<DriverBatchLoad> Loads => _loads.AsReadOnly();
+        public IReadOnlyCollection<DriverBatchWait> Waits => _waits.AsReadOnly();
+        public IReadOnlyCollection<DriverBatchHourly> Hourlies => _hourlies.AsReadOnly();
+
+        // Totals
+        public decimal TripTotal { get; private set; }
+        public decimal WaitingRawTotal { get; private set; }
+        public decimal WaitingTotal { get; private set; }
+        public decimal HourlyTotal { get; private set; }
+        public decimal WaitPay { get; private set; } // mirror for template
+        public decimal GrossRevenue { get; private set; }
+
+        // Share + taxes
         public decimal DriverShareAmount { get; private set; }
-
-        /// <summary>
-        /// Gets the tax details (GST/QST) computed on driver share amount.
-        /// </summary>
-        public TaxDetails Taxes { get; private set; }
-
-        /// <summary>
-        /// Gets the net pay amount (driver share plus taxes).
-        /// </summary>
+        public TaxAmounts Taxes { get; private set; } // GST/QST/PST/HST breakdown
         public decimal NetPay { get; private set; }
+        public decimal TotalPay => NetPay;
 
-        /// <summary>
-        /// Gets the current status of the batch.
-        /// </summary>
         public BatchStatus Status { get; private set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DriverBatch"/> class.
-        /// </summary>
-        /// <param name="batchNumber">Batch number identifier.</param>
-        /// <param name="driver">Associated driver.</param>
-        /// <param name="statementStartDate">Statement start date.</param>
-        /// <param name="statementEndDate">Statement end date.</param>
-        /// <param name="waitingPayoutPercentage">Waiting payout percentage.</param>
-        /// <param name="driverSharePercentage">Driver share percentage.</param>
+        private DriverBatch() { } // EF
+
         public DriverBatch(
             string batchNumber,
             Driver driver,
             DateTime statementStartDate,
             DateTime statementEndDate,
+            OwnershipType ownershipTypeAtBatch,
+            TaxProfile taxProfile,
             decimal waitingPayoutPercentage,
-            decimal driverSharePercentage)
+            decimal driverSharePercentage,
+            decimal adminFeePercent = 0m,
+            decimal adminFeeFlat = 0m,
+            bool adminFeeAppliesBeforeTaxes = false,
+            Guid? vehicleOwnershipId = null)
         {
             if (string.IsNullOrWhiteSpace(batchNumber))
                 throw new ArgumentException("Batch number cannot be empty.", nameof(batchNumber));
-
-            if (statementStartDate > statementEndDate)
+            if (statementStartDate.Date > statementEndDate.Date)
                 throw new ArgumentException("Statement start date must be before or equal to end date.");
+            if (!IsFraction(waitingPayoutPercentage))
+                throw new ArgumentOutOfRangeException(nameof(waitingPayoutPercentage), "Must be between 0 and 1.");
+            if (!IsFraction(driverSharePercentage))
+                throw new ArgumentOutOfRangeException(nameof(driverSharePercentage), "Must be between 0 and 1.");
+            if (!IsFraction(adminFeePercent))
+                throw new ArgumentOutOfRangeException(nameof(adminFeePercent), "Must be between 0 and 1.");
 
-            BatchNumber = batchNumber;
+            BatchNumber = batchNumber.Trim();
             Driver = driver ?? throw new ArgumentNullException(nameof(driver));
             DriverId = driver.Id;
-            StatementStartDate = statementStartDate;
-            StatementEndDate = statementEndDate;
+            StatementStartDate = statementStartDate.Date;
+            StatementEndDate = statementEndDate.Date;
+
+            OwnershipTypeAtBatch = ownershipTypeAtBatch;
+            TaxProfile = taxProfile ?? throw new ArgumentNullException(nameof(taxProfile));
+
             WaitingPayoutPercentage = waitingPayoutPercentage;
             DriverSharePercentage = driverSharePercentage;
+
+            AdminFeePercent = adminFeePercent;
+            AdminFeeFlat = adminFeeFlat;
+            AdminFeeAppliesBeforeTaxes = adminFeeAppliesBeforeTaxes;
+
+            VehicleOwnershipId = vehicleOwnershipId;
 
             _loads = new List<DriverBatchLoad>();
             _waits = new List<DriverBatchWait>();
@@ -176,67 +129,126 @@ namespace Cargo.Domain.Entities
             RecalculateTotals();
         }
 
-        /// <summary>
-        /// Adds a load entry to the batch.
-        /// </summary>
-        /// <param name="load">Load to add.</param>
+        // Mutations (Draft only)
         public void AddLoad(DriverBatchLoad load)
         {
-            EnsureMutable();
-            if (load == null) throw new ArgumentNullException(nameof(load));
-            _loads.Add(load);
-            RecalculateTotals();
+            EnsureMutable(); if (load == null) throw new ArgumentNullException(nameof(load));
+            _loads.Add(load); RecalculateTotals();
         }
 
-        /// <summary>
-        /// Adds a wait entry to the batch.
-        /// </summary>
-        /// <param name="wait">Wait to add.</param>
         public void AddWait(DriverBatchWait wait)
         {
-            EnsureMutable();
-            if (wait == null) throw new ArgumentNullException(nameof(wait));
-            _waits.Add(wait);
-            RecalculateTotals();
+            EnsureMutable(); if (wait == null) throw new ArgumentNullException(nameof(wait));
+            _waits.Add(wait); RecalculateTotals();
         }
 
-        /// <summary>
-        /// Adds an hourly entry to the batch.
-        /// </summary>
-        /// <param name="hourly">Hourly entry to add.</param>
         public void AddHourly(DriverBatchHourly hourly)
         {
+            EnsureMutable(); if (hourly == null) throw new ArgumentNullException(nameof(hourly));
+            _hourlies.Add(hourly); RecalculateTotals();
+        }
+
+        public void SetDray(decimal drayPay, decimal drayFsc, decimal tempEmergencyFsc)
+        {
             EnsureMutable();
-            if (hourly == null) throw new ArgumentNullException(nameof(hourly));
-            _hourlies.Add(hourly);
+            DrayPay = drayPay; DrayFsc = drayFsc; TemporaryEmergencyFsc = tempEmergencyFsc;
             RecalculateTotals();
         }
 
-        /// <summary>
-        /// Recalculates all totals and computed properties.
-        /// </summary>
-        public void RecalculateTotals()
+        public void SetPercentages(decimal waitingPayoutPercentage, decimal driverSharePercentage)
         {
-            TripTotal = Math.Round(_loads.Sum(l => l.CalculateNetPay()), 2, MidpointRounding.AwayFromZero);
-            WaitingRawTotal = Math.Round(_waits.Sum(w => w.CalculateRawPay()), 2, MidpointRounding.AwayFromZero);
-            WaitingTotal = Math.Round(WaitingRawTotal * WaitingPayoutPercentage, 2, MidpointRounding.AwayFromZero);
-            HourlyTotal = Math.Round(_hourlies.Sum(h => h.CalculatePay()), 2, MidpointRounding.AwayFromZero);
-            GrossRevenue = Math.Round(TripTotal + WaitingTotal + HourlyTotal, 2, MidpointRounding.AwayFromZero);
-            DriverShareAmount = Math.Round(GrossRevenue * DriverSharePercentage, 2, MidpointRounding.AwayFromZero);
-
-            // Assuming GST 5% and QST 9.975% rates; these could be configurable
-            Taxes = TaxDetails.Calculate(DriverShareAmount, 0.05m, 0.09975m);
-
-            NetPay = DriverShareAmount + Taxes.TotalTaxes;
+            EnsureMutable();
+            if (!IsFraction(waitingPayoutPercentage)) throw new ArgumentOutOfRangeException(nameof(waitingPayoutPercentage));
+            if (!IsFraction(driverSharePercentage)) throw new ArgumentOutOfRangeException(nameof(driverSharePercentage));
+            WaitingPayoutPercentage = waitingPayoutPercentage;
+            DriverSharePercentage = driverSharePercentage;
+            RecalculateTotals();
         }
 
-        /// <summary>
-        /// Sets the batch status.
-        /// </summary>
-        /// <param name="status">New status.</param>
+        public void SetAdminFees(decimal adminFeePercent, decimal adminFeeFlat, bool appliesBeforeTaxes = false)
+        {
+            EnsureMutable();
+            if (!IsFraction(adminFeePercent)) throw new ArgumentOutOfRangeException(nameof(adminFeePercent));
+            AdminFeePercent = adminFeePercent;
+            AdminFeeFlat = adminFeeFlat;
+            AdminFeeAppliesBeforeTaxes = appliesBeforeTaxes;
+            RecalculateTotals();
+        }
+
+        public void SetOwnershipSnapshot(OwnershipType type, Guid? vehicleOwnershipId = null)
+        {
+            EnsureMutable();
+            OwnershipTypeAtBatch = type;
+            VehicleOwnershipId = vehicleOwnershipId;
+            RecalculateTotals();
+        }
+
+        public void SetTaxProfile(TaxProfile profile)
+        {
+            EnsureMutable();
+            TaxProfile = profile ?? throw new ArgumentNullException(nameof(profile));
+            RecalculateTotals();
+        }
+
+        public void AddAdjustment(decimal amount) // can be negative (e.g., -20 for truckwash)
+        {
+            EnsureMutable();
+            AdjustmentsTotal = Round2(AdjustmentsTotal + amount);
+            RecalculateTotals();
+        }
+
         public void SetStatus(BatchStatus status)
         {
             Status = status;
+        }
+
+        // Calculations (uniform rounding)
+        public void RecalculateTotals()
+        {
+            TripTotal = Round2(_loads.Sum(l => l.CalculateNetPay()));
+            WaitingRawTotal = Round2(_waits.Sum(w => w.CalculateRawPay()));
+            WaitingTotal = Round2(WaitingRawTotal * WaitingPayoutPercentage);
+            HourlyTotal = Round2(_hourlies.Sum(h => h.CalculatePay()));
+
+            // If your Excel Gross includes dray, keep DrayTotal here; if not, set dray values to 0.
+            GrossRevenue = Round2(TripTotal + WaitingTotal + HourlyTotal + DrayTotal);
+
+            // Commission/share based on ownership snapshot
+            decimal baseBeforeAdmin = OwnershipTypeAtBatch == OwnershipType.OwnedByDriverCompany
+                ? GrossRevenue // owner-operator: full gross
+                : Round2(GrossRevenue * DriverSharePercentage); // company driver: e.g., 40%
+
+            // Admin fee (owner-operator). If applies before taxes, subtract from base, else after taxes.
+            var adminFeeAmount = Round2(baseBeforeAdmin * AdminFeePercent) + AdminFeeFlat;
+            decimal taxableBase;
+
+            if (AdminFeeAppliesBeforeTaxes)
+            {
+                var afterAdmin = Round2(baseBeforeAdmin - adminFeeAmount);
+                DriverShareAmount = afterAdmin;
+                taxableBase = DriverShareAmount;
+            }
+            else
+            {
+                DriverShareAmount = baseBeforeAdmin;
+                taxableBase = DriverShareAmount;
+            }
+
+            // Taxes on driver share (Quebec PDFs show GST/QST applied on the commission base)
+            Taxes = TaxAmounts.Calculate(taxableBase, TaxProfile, 2, MidpointRounding.AwayFromZero);
+
+            // NetPay = share + taxes - admin(after-taxes if configured) + adjustments
+            var net = DriverShareAmount + Taxes.TotalTaxes;
+
+            if (!AdminFeeAppliesBeforeTaxes)
+                net = Round2(net - adminFeeAmount);
+
+            net = Round2(net + AdjustmentsTotal);
+
+            NetPay = net;
+
+            // Mirror for template
+            WaitPay = WaitingTotal;
         }
 
         private void EnsureMutable()
@@ -244,5 +256,8 @@ namespace Cargo.Domain.Entities
             if (Status != BatchStatus.Draft)
                 throw new InvalidOperationException("Cannot modify batch unless status is Draft.");
         }
+
+        private static bool IsFraction(decimal v) => v >= 0m && v <= 1m;
+        private static decimal Round2(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
     }
 }

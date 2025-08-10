@@ -8,25 +8,28 @@ namespace Cargo.Domain.ValueObjects
     /// </summary>
     public sealed class TaxAmounts
     {
-        /// <summary>
-        /// Gets the calculated Goods and Services Tax (GST) amount.
-        /// </summary>
-        public decimal GstAmount { get; }
+        // For EF Core - parameterless constructor
+        public TaxAmounts() { }
 
         /// <summary>
-        /// Gets the calculated Quebec Sales Tax (QST) amount.
+        /// Gets or sets the calculated Goods and Services Tax (GST) amount.
         /// </summary>
-        public decimal QstAmount { get; }
+        public decimal GstAmount { get; set; }
 
         /// <summary>
-        /// Gets the calculated Provincial Sales Tax (PST) amount.
+        /// Gets or sets the calculated Quebec Sales Tax (QST) amount.
         /// </summary>
-        public decimal PstAmount { get; }
+        public decimal QstAmount { get; set; }
 
         /// <summary>
-        /// Gets the calculated Harmonized Sales Tax (HST) amount.
+        /// Gets or sets the calculated Provincial Sales Tax (PST) amount.
         /// </summary>
-        public decimal HstAmount { get; }
+        public decimal PstAmount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the calculated Harmonized Sales Tax (HST) amount.
+        /// </summary>
+        public decimal HstAmount { get; set; }
 
         /// <summary>
         /// Gets the total calculated taxes (sum of all tax amounts).

@@ -50,6 +50,15 @@ namespace Cargo.Domain.ValueObjects
         public TaxProfile TaxProfile { get; }
 
         /// <summary>
+        /// Initializes a new instance of the DriverSettings class for Entity Framework.
+        /// </summary>
+        private DriverSettings()
+        {
+            // Parameterless constructor for Entity Framework
+            TaxProfile = new TaxProfile(0, 0, 0, 0, false);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the DriverSettings class.
         /// </summary>
         /// <param name="numPayBands">The number of pay bands.</param>

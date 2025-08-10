@@ -7,26 +7,23 @@ namespace Cargo.Domain.ValueObjects
     /// </summary>
     public class TaxDetails
     {
-        /// <summary>
-        /// Gets the GST amount.
-        /// </summary>
-        public decimal GstAmount { get; private set; }
+        // For EF Core - parameterless constructor
+        public TaxDetails() { }
 
         /// <summary>
-        /// Gets the QST amount.
+        /// Gets or sets the GST amount.
         /// </summary>
-        public decimal QstAmount { get; private set; }
+        public decimal GstAmount { get; set; }
 
         /// <summary>
-        /// Gets the total taxes (GST + QST).
+        /// Gets or sets the QST amount.
+        /// </summary>
+        public decimal QstAmount { get; set; }
+
+        /// <summary>
+        /// Gets the total calculated taxes (GST + QST).
         /// </summary>
         public decimal TotalTaxes => GstAmount + QstAmount;
-
-        private TaxDetails(decimal gstAmount, decimal qstAmount)
-        {
-            GstAmount = gstAmount;
-            QstAmount = qstAmount;
-        }
 
         /// <summary>
         /// Calculates the tax details based on the taxable base and tax rates.
@@ -40,7 +37,11 @@ namespace Cargo.Domain.ValueObjects
         {
             var gstAmount = Math.Round(taxableBase * gstRate, decimals, MidpointRounding.AwayFromZero);
             var qstAmount = Math.Round(taxableBase * qstRate, decimals, MidpointRounding.AwayFromZero);
-            return new TaxDetails(gstAmount, qstAmount);
+            
+            var result = new TaxDetails();
+            result.GstAmount = gstAmount;
+            result.QstAmount = qstAmount;
+            return result;
         }
     }
 }

@@ -125,7 +125,7 @@ namespace Cargo.Domain.Entities
         /// <param name="rate">The pay rate value.</param>
         /// <param name="bandLabel">The descriptive band label applied.</param>
         /// <param name="fscPay">Fuel surcharge pay amount.</param>
-        /// <param name="tempEmergencyFuelPay">Temporary emergency fuel pay amount.</param>
+        /// <param name="temporaryEmergencyFuelPay">Temporary emergency fuel pay amount.</param>
         /// <exception cref="ArgumentException">Thrown when required parameters are missing or invalid.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when numeric values are negative.</exception>
         public DriverBatchLoad(
@@ -139,7 +139,7 @@ namespace Cargo.Domain.Entities
             decimal rate,
             string bandLabel,
             decimal fscPay,
-            decimal tempEmergencyFuelPay)
+            decimal temporaryEmergencyFuelPay)
         {
             if (string.IsNullOrWhiteSpace(loadNumber))
                 throw new ArgumentException("Load number is required.", nameof(loadNumber));
@@ -160,7 +160,7 @@ namespace Cargo.Domain.Entities
 
             BasePay = CalculateBasePay();
             FscPay = Round2(fscPay);
-            TemporaryEmergencyFuelPay = Round2(tempEmergencyFuelPay);
+            TemporaryEmergencyFuelPay = Round2(temporaryEmergencyFuelPay);
             NetWefp = Round2(BasePay + FscPay + TemporaryEmergencyFuelPay);
         }
 

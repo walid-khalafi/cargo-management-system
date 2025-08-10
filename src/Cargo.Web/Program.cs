@@ -3,6 +3,8 @@ using Cargo.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+
+
 namespace Cargo.Web
 {
     public class Program
@@ -17,8 +19,9 @@ namespace Cargo.Web
             // Register ApplicationDbContext with SQL Server
             builder.Services.AddDbContext<CargoDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
             // Register Identity services
+
+
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 // Username settings
@@ -42,8 +45,23 @@ namespace Cargo.Web
                 options.SignIn.RequireConfirmedEmail = false;         // Email confirmation not required
                 options.SignIn.RequireConfirmedPhoneNumber = false;   // Phone confirmation not required
             })
+                .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<CargoDbContext>()
             .AddDefaultTokenProviders();
+
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/Login";
+                options.LogoutPath = "/Account/Logout";
+                options.SlidingExpiration = true;
+                options.Cookie.IsEssential = true;
+
+            });
+            builder.Services.AddDistributedMemoryCache();
 
             var app = builder.Build();
 
@@ -63,7 +81,7 @@ namespace Cargo.Web
             app.UseAuthentication();     // Enable authentication middleware
             app.UseAuthorization();      // Enable authorization middleware
 
-             // Map static assets and default route
+            // Map static assets and default route
             app.MapStaticAssets();
 
             app.MapControllerRoute(

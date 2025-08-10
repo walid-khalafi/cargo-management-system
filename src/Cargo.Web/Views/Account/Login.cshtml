@@ -1,0 +1,127 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+@section Styles {
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+            /* adjust the value to your liking */
+        }
+    </style>
+}
+<section style="padding-top: 100px; padding-bottom:100px;">
+    <!-- add padding top -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- add justify-content-center -->
+            <div class="col-md-4">
+                <!-- Login form -->
+                <form action="@Url.Action("Login","Account",new { returnurl = ViewData["ReturnUrl"]})" method="post">
+                    @Html.AntiForgeryToken() <!-- add CSRF token -->
+                    <h2 class="text-center mb-4">
+                        Login Form
+                    </h2>
+                    <!-- Display validation summary -->
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Please correct the following errors:</strong>
+                            <ul>
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (TempData["error_msg"] != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @TempData["error_msg"].ToString()
+                        </div>
+                    }
+
+                    @if (TempData["success_msg"] != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @TempData["success_msg"].ToString()
+                        </div>
+                    }
+                    <div class="form-group">
+                        <label for="UserName" class="sr-only">Username or Email</label>
+                        <input type="text" asp-for="UserName" class="form-control text-left"
+                            placeholder="Username or Email" dir="ltr" required autofocus autocomplete="off">
+                        <!-- Display validation message for UserName -->
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <label for="Password" class="sr-only">Password</label>
+                        <input  asp-for="Password" class="form-control text-left" placeholder="Password"
+                            dir="ltr" required autocomplete="new-password">
+                        <!-- Display validation message for Password -->
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group d-sm-flex justify-content-between text-left mb-4">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" asp-for="RememberMe" class="custom-control-input" id="RememberMe" name="RememberMe" >
+                            <label class="custom-control-label" for="RememberMe">Remember Me</label>
+                        </div>
+                        <a class="d-block mt-2 mt-sm-0" href="@Url.Action("ForgotPassword","Account")">Forgot
+                            Password</a>
+                    </div>
+                    <button class="wePrimaryButton">Login</button>
+                    <hr>
+                    <p class="text-muted">Don't have an account?</p>
+                    <a href="@Url.Action("register","Account")" class="weDangerButton">Register Now!</a>
+                </form>
+                <!-- ./ form -->
+            </div>
+            <div class="col-md-8">
+                <div class="security-tips">
+                    <h4>Security Tips:</h4>
+                    <ul>
+                        <li>Use a strong and unique password for your account.</li>
+                        <li>Avoid using easily guessable information such as your name, birthdate, or common words.</li>
+                        <li>Don't share your password with anyone, including friends and family.</li>
+                        <li>Use two-factor authentication (2FA) whenever possible to add an extra layer of security.
+                        </li>
+                        <li>Be cautious when clicking on links or downloading attachments from unknown sources.</li>
+                        <li>Regularly update your password and keep your account information up-to-date.</li>
+                    </ul>
+                </div>
+                <div class="external-login">
+                    <h4>Or login with:</h4>
+                    <ul>
+                        @if (ViewData["ExternalLogins"] is IEnumerable<Microsoft.AspNetCore.Authentication.AuthenticationScheme> externalLogins)
+                        {
+                            foreach (var provider in externalLogins)
+                            {
+                                var providerName = provider.Name;
+                                var cssClass = providerName.ToLower() switch
+                                {
+                                    "google" => "btn-google",
+                                    "facebook" => "btn-facebook",
+                                    "microsoft" => "btn-microsoft",
+                                    _ => "btn-secondary"
+                                };
+                                <li>
+                                    <a href="@Url.Action("ExternalLogin", "Account", new { provider = providerName })"
+                                       class="btn @cssClass btn-block">
+                                        <i class="fab fa-@providerName.ToLower()"></i> @providerName
+                                    </a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li>No external login providers configured.</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,26 @@
+﻿@model LoginWithRecoveryCodeViewModel
+@{
+    ViewData["Title"] = "Log in to System with Recovery Code";
+}
+
+<section style="padding-top: 100px; padding-bottom:100px;">
+    <!-- add padding top -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <h2>@ViewData["Title"]</h2>
+            <hr />
+            <p>
+                You have requested to log in to the system using a recovery code.
+            </p>
+            <form method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="RecoveryCode"></label>
+                    <input asp-for="RecoveryCode" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="RecoveryCode" class="text-danger"></span>
+                </div>
+                <button type="submit" class="wePrimaryButton">Log in to System</button>
+            </form>
+        </div>
+    </div>
+</section>

@@ -9,6 +9,11 @@ namespace Cargo.Domain.ValueObjects
     /// </summary>
     public sealed class RateBand
     {
+        // ✅ EF Core needs this for materialization
+        protected RateBand() { 
+            
+        }
+
         /// <summary>
         /// Gets the band identifier or sequence number.
         /// </summary>

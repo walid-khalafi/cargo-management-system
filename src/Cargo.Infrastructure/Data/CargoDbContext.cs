@@ -1,13 +1,17 @@
 using Cargo.Domain.Entities;
+using Cargo.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cargo.Infrastructure.Data;
 
-public class CargoDbContext : DbContext
+public class CargoDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
 {
-    public CargoDbContext(DbContextOptions<CargoDbContext> options) : base(options)
+    public CargoDbContext(DbContextOptions<CargoDbContext> options)
+        : base(options)
     {
     }
+
 
     // Aggregate Roots
     public DbSet<Company> Companies { get; set; }

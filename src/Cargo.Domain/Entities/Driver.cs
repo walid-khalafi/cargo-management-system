@@ -27,7 +27,7 @@ namespace Cargo.Domain.Entities
         {
             Status = DriverStatus.Active;
             Address = new Address();
-            Settings = new DriverSettings(1, 0, 0, FscMode.Fixed, 0, 0, "", TaxProfile.CreateOntarioProfile());
+            //Settings = new DriverSettings(1, 0, 0, FscMode.Fixed, 0, 0, "", TaxProfile.CreateOntarioProfile());
         }
 
         /// <summary>
@@ -133,10 +133,10 @@ namespace Cargo.Domain.Entities
         /// </summary>
         public virtual Company Company { get; set; }
 
-        /// <summary>
-        /// Gets or sets the driver's specific settings for pay and tax calculations.
-        /// </summary>
-        public DriverSettings Settings { get; set; }
+        ///// <summary>
+        ///// Gets or sets the driver's specific settings for pay and tax calculations.
+        ///// </summary>
+        //public DriverSettings Settings { get; set; }
 
         /// <summary>
         /// Validates if the driver meets minimum requirements for active duty

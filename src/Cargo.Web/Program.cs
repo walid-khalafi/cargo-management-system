@@ -19,11 +19,6 @@ namespace Cargo.Web
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register Identity services
-            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<CargoDbContext>()
-                .AddDefaultTokenProviders();
-
-
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 // Username settings

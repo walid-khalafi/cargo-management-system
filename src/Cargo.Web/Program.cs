@@ -70,7 +70,12 @@ namespace Cargo.Web
             // Lifetime: Scoped — a new repository instance is created for each HTTP request
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-
+            // Register the Vehicle repository in the DI container with a Scoped lifetime.
+            // This means that whenever IVehicleRepository is requested,
+            // the container will provide an instance of VehicleRepository.
+            // Scoped lifetime ensures one repository instance per HTTP request,
+            // which is ideal for Entity Framework Core DbContext usage.
+            builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 
             var app = builder.Build();

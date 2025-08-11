@@ -1,5 +1,6 @@
-using Cargo.Infrastructure.Identity;
 using Cargo.Infrastructure.Data;
+using Cargo.Infrastructure.Identity;
+using Cargo.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,6 +63,33 @@ namespace Cargo.Web
 
             });
             builder.Services.AddDistributedMemoryCache();
+
+
+
+            // Configure repository dependencies for Dependency Injection (DI) with Scoped lifetime.
+            //
+            // 1. Generic repository registration:
+            //    - Maps IGenericRepository<TEntity> to GenericRepository<TEntity> for any entity type.
+            //      This enables common CRUD operations across the domain without rewriting logic.
+            //
+            // 2. Specific repository registrations:
+            //    - IVehicleRepository  -> VehicleRepository   // Vehicle entity data access
+            //    - IDriverRepository   -> DriverRepository    // Driver entity data access
+            //    - ICompanyRepository  -> CompanyRepository   // Company entity data access
+            //    - IRouteRepository    -> RouteRepository     // Route entity data access
+            //    - IApplicationUserRepository    -> ApplicationUserRepository     // ApplicationUser entity data access
+            //    - IApplicationRoleRepository    -> ApplicationRoleRepository     // ApplicationRole entity data access
+            //
+            // Scoped lifetime ensures each HTTP request gets its own repository instances,
+            // which works in harmony with the EF Core DbContext lifetime to avoid concurrency issues.
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+            builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+            builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+            builder.Services.AddScoped<IRouteRepository, RouteRepository>();
+            builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+            builder.Services.AddScoped<IApplicationRoleRepository, ApplicationRoleRepository>();
+
 
             var app = builder.Build();
 

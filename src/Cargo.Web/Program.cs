@@ -63,19 +63,32 @@ namespace Cargo.Web
 
             });
             builder.Services.AddDistributedMemoryCache();
-            
-            // Register the generic repository in the Dependency Injection (DI) container
-            // This tells the application: 
-            // "Whenever a class asks for IGenericRepository<T>, give it an instance of GenericRepository<T>."
-            // Lifetime: Scoped — a new repository instance is created for each HTTP request
-            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-            // Register the Vehicle repository in the DI container with a Scoped lifetime.
-            // This means that whenever IVehicleRepository is requested,
-            // the container will provide an instance of VehicleRepository.
-            // Scoped lifetime ensures one repository instance per HTTP request,
-            // which is ideal for Entity Framework Core DbContext usage.
+
+
+            // Configure repository dependencies for Dependency Injection (DI) with Scoped lifetime.
+            //
+            // 1. Generic repository registration:
+            //    - Maps IGenericRepository<TEntity> to GenericRepository<TEntity> for any entity type.
+            //      This enables common CRUD operations across the domain without rewriting logic.
+            //
+            // 2. Specific repository registrations:
+            //    - IVehicleRepository  -> VehicleRepository   // Vehicle entity data access
+            //    - IDriverRepository   -> DriverRepository    // Driver entity data access
+            //    - ICompanyRepository  -> CompanyRepository   // Company entity data access
+            //    - IRouteRepository    -> RouteRepository     // Route entity data access
+            //    - IApplicationUserRepository    -> ApplicationUserRepository     // ApplicationUser entity data access
+            //    - IApplicationRoleRepository    -> ApplicationRoleRepository     // ApplicationRole entity data access
+            //
+            // Scoped lifetime ensures each HTTP request gets its own repository instances,
+            // which works in harmony with the EF Core DbContext lifetime to avoid concurrency issues.
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+            builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+            builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+            builder.Services.AddScoped<IRouteRepository, RouteRepository>();
+            builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+            builder.Services.AddScoped<IApplicationRoleRepository, ApplicationRoleRepository>();
 
 
             var app = builder.Build();

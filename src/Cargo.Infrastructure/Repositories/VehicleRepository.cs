@@ -59,4 +59,53 @@ public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
         return await _context.Vehicles
             .FirstOrDefaultAsync(v => v.PlateNumber.Value == licensePlate, ct);
     }
+
+    #region VehicleOwnership Operations
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<VehicleOwnership>> GetVehicleOwnershipsAsync(Guid vehicleId, CancellationToken ct = default)
+    {
+        return await _context.VehicleOwnerships
+            .Where(vo => vo.VehicleId == vehicleId)
+            .OrderByDescending(vo => vo.OwnedFrom)
+            .ToListAsync(ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<VehicleOwnership?> GetCurrentVehicleOwnershipAsync(Guid vehicleId, CancellationToken ct = default)
+    {
+        return await _context.VehicleOwnerships
+            .Where(vo => vo.VehicleId == vehicleId && vo.OwnedUntil == null)
+            .OrderByDescending(vo => vo.OwnedFrom)
+            .FirstOrDefaultAsync(ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Vehicle>> GetVehiclesByCompanyOwnershipAsync(Guid companyId, CancellationToken ct = default)
+    {
+        return await _context.Vehicles
+            .Where(v => _context.VehicleOwnerships
+                .Any(vo => vo.VehicleId == v.Id && vo.OwnerCompanyId == companyId && vo.OwnedUntil == null))
+            .ToListAsync(ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<VehicleOwnership>> GetActiveVehicleOwnershipsByCompanyAsync(Guid companyId, CancellationToken ct = default)
+    {
+        return await _context.VehicleOwnerships
+            .Where(vo => vo.OwnerCompanyId == companyId && vo.OwnedUntil == null)
+            .OrderByDescending(vo => vo.OwnedFrom)
+            .ToListAsync(ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<VehicleOwnership>> GetVehicleOwnershipsByTypeAsync(OwnershipType ownershipType, CancellationToken ct = default)
+    {
+        return await _context.VehicleOwnerships
+            .Where(vo => vo.Type == ownershipType)
+            .OrderByDescending(vo => vo.OwnedFrom)
+            .ToListAsync(ct);
+    }
+
+    #endregion
 }

@@ -1,5 +1,6 @@
-using Cargo.Infrastructure.Identity;
 using Cargo.Infrastructure.Data;
+using Cargo.Infrastructure.Identity;
+using Cargo.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,6 +63,15 @@ namespace Cargo.Web
 
             });
             builder.Services.AddDistributedMemoryCache();
+            
+            // Register the generic repository in the Dependency Injection (DI) container
+            // This tells the application: 
+            // "Whenever a class asks for IGenericRepository<T>, give it an instance of GenericRepository<T>."
+            // Lifetime: Scoped — a new repository instance is created for each HTTP request
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+
+
 
             var app = builder.Build();
 

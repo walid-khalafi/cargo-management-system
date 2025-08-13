@@ -1,4 +1,5 @@
 ﻿using System;
+using Cargo.Application.DTOs.Common;
 using Cargo.Domain.Enums;
 
 namespace Cargo.Application.DTOs.DriverBatches

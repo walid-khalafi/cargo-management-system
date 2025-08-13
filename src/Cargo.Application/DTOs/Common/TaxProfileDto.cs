@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cargo.Application.DTOs.DriverBatches
+namespace Cargo.Application.DTOs.Common
 {
     public class TaxProfileDto
     {

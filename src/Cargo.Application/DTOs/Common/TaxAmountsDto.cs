@@ -1,4 +1,4 @@
-﻿namespace Cargo.Application.DTOs.DriverBatches
+﻿namespace Cargo.Application.DTOs.Common
 {
     /// <summary>
     /// DTO for transferring calculated tax amounts (GST, QST, PST, HST).

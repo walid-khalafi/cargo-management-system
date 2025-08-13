@@ -1,4 +1,5 @@
 using AutoMapper;
+using Cargo.Application.DTOs.Common;
 using Cargo.Application.DTOs.DriverBatches;
 using Cargo.Application.DTOs.DriverBatches.Cargo.Application.DTOs;
 using Cargo.Domain.Entities;

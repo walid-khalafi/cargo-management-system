@@ -1,3 +1,4 @@
+using Cargo.Domain.Entities;
 using Cargo.Domain.ValueObjects;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,5 +77,39 @@ namespace Cargo.Application.Mapping.Helpers
             // Default/fallback
             return TaxProfile.CreateQuebecProfile();
         }
+
+
+        // Helpers to build domain objects used in mapping tests
+        public static Vehicle BuildVehicle(Guid id, string make, string model, string plateValue)
+        {
+            
+             return  new Vehicle(
+                make,
+                model,
+                2023,
+                "Blue",
+                "1FTFW1E14PFA12345",
+                "REG123",
+                new PlateNumber(plateValue, "QA", "Standard"),
+                "Diesel",
+                5,
+                Guid.NewGuid()
+            );
+
+         
+        }
+
+        public static Company BuildCompany(Guid id, string name)
+        {
+            return new Company
+            {
+                Id = id,
+                Name = name
+            };
+        }
+
+
+
+
     }
 }

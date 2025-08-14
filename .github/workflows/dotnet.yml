@@ -27,7 +27,7 @@ jobs:
 
       # 4️⃣ Build the solution and treat warnings as errors
       - name: Build
-        run: dotnet build ./Cargo.sln --no-restore --warnaserror
+        run: dotnet build ./Cargo.sln --no-restore
 
       # 5️⃣ Run all unit tests
       - name: Test

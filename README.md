@@ -57,14 +57,19 @@ dotnet run
 - [ ] Expand test coverage to 95%+  
 - [ ] Integrate with 3rd-party freight APIs  
 
-
 ## 🤝 Sponsorship
-We are actively seeking financial sponsors to:
+
+This project is proudly hosted on [Open Collective](https://opencollective.com/cargo-management-system), where individuals and organizations can contribute financially to support its development.
+
+### Your support helps us:
 
 - 🚀 Accelerate feature development  
-- 🌐 Enhance internationalization capabilities  
+- 🌐 Improve internationalization and localization  
 - 🧪 Expand testing infrastructure for global compliance  
 - 🎯 Build recruiter-ready enterprise demos  
+
+Become a sponsor today 👉 [opencollective.com/cargo-management-system](https://opencollective.com/cargo-management-system)
+
 
 
 ## 📜 License

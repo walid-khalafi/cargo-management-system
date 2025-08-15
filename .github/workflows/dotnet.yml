@@ -1,0 +1,34 @@
+﻿name: .NET Build & Test
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Pull the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Install the specified .NET 9 SDK version
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # 3️⃣ Restore project dependencies
+      - name: Restore dependencies
+        run: dotnet restore ./Cargo.sln
+
+      # 4️⃣ Build the solution and treat warnings as errors
+      - name: Build
+        run: dotnet build ./Cargo.sln --no-restore
+
+      # 5️⃣ Run all unit tests
+      - name: Test
+        run: dotnet test ./Cargo.sln --no-build --verbosity normal

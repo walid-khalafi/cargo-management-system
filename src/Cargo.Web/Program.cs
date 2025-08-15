@@ -1,3 +1,4 @@
+using Cargo.Domain.Interfaces;
 using Cargo.Infrastructure.Data;
 using Cargo.Infrastructure.Identity;
 using Cargo.Infrastructure.Repositories;

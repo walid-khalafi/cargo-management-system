@@ -91,14 +91,7 @@ namespace Cargo.Application.Tests.Domain
                     LastName = "Doe",
                     Email = "john.doe@example.com",
                     PhoneNumber = "+1-555-123-4567",
-                    Address = new Address
-                    {
-                        Street = "123 Main Street",
-                        City = "Montreal",
-                        State = "QC",
-                        ZipCode = "H3A 1B2",
-                        Country = "Canada"
-                    },
+                    Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                     LicenseNumber = "DL123456789",
                     LicenseType = "CDL-A",
                     LicenseExpiryDate = new DateTime(2025, 12, 31),

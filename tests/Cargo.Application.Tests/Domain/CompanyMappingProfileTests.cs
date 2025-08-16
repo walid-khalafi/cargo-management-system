@@ -41,14 +41,7 @@ namespace Cargo.Application.Tests.Domain
                 Id = Guid.NewGuid(),
                 Name = "Test Company Inc.",
                 RegistrationNumber = "REG123456",
-                Address = new Address
-                {
-                    Street = "123 Main Street",
-                    City = "Montreal",
-                    State = "QC",
-                    ZipCode = "H3A 1B2",
-                    Country = "Canada"
-                },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                 TaxProfile = TaxProfile.CreateQuebecProfile(),
                 Drivers = new List<Driver>
                     {
@@ -89,7 +82,7 @@ namespace Cargo.Application.Tests.Domain
                 Id = Guid.NewGuid(),
                 Name = "Test Company",
                 RegistrationNumber = "REG789",
-                Address = new Address { City = "Toronto" },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                 TaxProfile = TaxProfile.CreateOntarioProfile(),
                 Drivers = new List<Driver>(),
                 Vehicles = new List<VehicleOwnership>()
@@ -203,7 +196,7 @@ namespace Cargo.Application.Tests.Domain
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
                 RegistrationNumber = "OLD123",
-                Address = new Address { Street = "Old Street" },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                 TaxProfile = TaxProfile.CreateQuebecProfile()
             };
 
@@ -236,7 +229,7 @@ namespace Cargo.Application.Tests.Domain
                 Id = Guid.NewGuid(),
                 Name = "Original Name",
                 RegistrationNumber = "ORIG123",
-                Address = new Address { Street = "Original Street" },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                 TaxProfile = TaxProfile.CreateQuebecProfile()
             };
 
@@ -254,7 +247,7 @@ namespace Cargo.Application.Tests.Domain
             // Assert
             Assert.Equal("Original Name", existingCompany.Name);
             Assert.Equal("ORIG123", existingCompany.RegistrationNumber);
-            Assert.Equal("Original Street", existingCompany.Address.Street);
+            Assert.Equal("123 Main Street", existingCompany.Address.Street);
         }
 
         [Fact]
@@ -265,7 +258,7 @@ namespace Cargo.Application.Tests.Domain
             {
                 Id = Guid.NewGuid(),
                 Name = "Original Name",
-                Address = new Address { Street = "Original Street" }
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
             };
 
             var updateDto = new CompanyUpdateDto
@@ -277,7 +270,7 @@ namespace Cargo.Application.Tests.Domain
             _mapper.Map(updateDto, existingCompany);
 
             // Assert
-            Assert.Equal("Original Street", existingCompany.Address.Street);
+            Assert.Equal("123 Main Street", existingCompany.Address.Street);
         }
 
         [Theory]

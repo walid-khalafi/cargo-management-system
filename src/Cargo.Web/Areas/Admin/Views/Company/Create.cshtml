@@ -1,0 +1,205 @@
+@model Cargo.Web.Areas.Admin.Models.CompanyViewModels.CompanyCreateViewModel
+@{
+    ViewData["Title"] = "Create Company";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Create New Company</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Company Information</h5>
+                    </div>
+                    <div class="card-body">
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Company Name <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter company name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <small class="form-text text-muted">Official registered name of the company</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="RegistrationNumber" class="form-label">Registration Number <span class="text-danger">*</span></label>
+                            <input asp-for="RegistrationNumber" class="form-control" placeholder="Enter registration number" />
+                            <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                            <small class="form-text text-muted">Government issued business registration number</small>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Address Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label asp-for="Address.Street" class="form-label">Street Address <span class="text-danger">*</span></label>
+                                        <input asp-for="Address.Street" class="form-control" placeholder="Enter street address" />
+                                        <span asp-validation-for="Address.Street" class="text-danger"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Address.City" class="form-label">City <span class="text-danger">*</span></label>
+                                        <input asp-for="Address.City" class="form-control" placeholder="Enter city" />
+                                        <span asp-validation-for="Address.City" class="text-danger"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Address.State" class="form-label">Province <span class="text-danger">*</span></label>
+                                        <input asp-for="Address.State" class="form-control" placeholder="Enter province" />
+                                        <span asp-validation-for="Address.State" class="text-danger"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Address.ZipCode" class="form-label">Postal Code <span class="text-danger">*</span></label>
+                                        <input asp-for="Address.ZipCode" class="form-control" placeholder="Enter postal code" />
+                                        <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Address.Country" class="form-label">Country <span class="text-danger">*</span></label>
+                                        <input asp-for="Address.Country" class="form-control" value="Canada" placeholder="Enter country" />
+                                        <span asp-validation-for="Address.Country" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Tax Profile</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="TaxProfile.GstRate" class="form-label">GST Rate (%)</label>
+                                        <div class="input-group">
+                                            <input asp-for="TaxProfile.GstRate" class="form-control" type="number" step="0.01" min="0" max="1" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <span asp-validation-for="TaxProfile.GstRate" class="text-danger"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="TaxProfile.QstRate" class="form-label">QST Rate (%)</label>
+                                        <div class="input-group">
+                                            <input asp-for="TaxProfile.QstRate" class="form-control" type="number" step="0.01" min="0" max="1" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <span asp-validation-for="TaxProfile.QstRate" class="text-danger"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="TaxProfile.PstRate" class="form-label">PST Rate (%)</label>
+                                        <div class="input-group">
+                                            <input asp-for="TaxProfile.PstRate" class="form-control" type="number" step="0.01" min="0" max="1" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <span asp-validation-for="TaxProfile.PstRate" class="text-danger"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="TaxProfile.HstRate" class="form-label">HST Rate (%)</label>
+                                        <div class="input-group">
+                                            <input asp-for="TaxProfile.HstRate" class="form-control" type="number" step="0.01" min="0" max="1" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <span asp-validation-for="TaxProfile.HstRate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="TaxProfile.CompoundQstOverGst" class="form-check-input" type="checkbox" />
+                                        <label asp-for="TaxProfile.CompoundQstOverGst" class="form-check-label">
+                                            Compound QST over GST
+                                        </label>
+                                    </div>
+                                    <span asp-validation-for="TaxProfile.CompoundQstOverGst" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <strong>Total Tax Rate:</strong> <span id="totalTaxRate">0.00%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Company
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Help & Guidelines</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Required Fields</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Company Name - Official registered name</li>
+                            <li><i class="fas fa-check text-success"></i> Registration Number - Government issued number</li>
+                            <li><i class="fas fa-check text-success"></i> Address - Physical business address</li>
+                            <li><i class="fas fa-check text-success"></i> Tax Rates - All tax profile rates</li>
+                        </ul>
+                        
+                        <h6>Tax Profile Guidelines</h6>
+                        <ul class="list-unstyled">
+                            <li><small>GST: Goods and Services Tax (federal)</small></li>
+                            <li><small>QST: Quebec Sales Tax (provincial)</small></li>
+                            <li><small>PST: Provincial Sales Tax</small></li>
+                            <li><small>HST: Harmonized Sales Tax</small></li>
+                        </ul>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Note:</strong> Ensure all tax rates are entered as decimal values (e.g., 5% = 0.05)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Calculate total tax rate dynamically
+        function calculateTotalTax() {
+            const gst = parseFloat(document.getElementById('TaxProfile_GstRate').value) || 0;
+            const qst = parseFloat(document.getElementById('TaxProfile_QstRate').value) || 0;
+            const pst = parseFloat(document.getElementById('TaxProfile_PstRate').value) || 0;
+            const hst = parseFloat(document.getElementById('TaxProfile_HstRate').value) || 0;
+            
+            const total = gst + qst + pst + hst;
+            document.getElementById('totalTaxRate').textContent = (total * 100).toFixed(2) + '%';
+        }
+
+        // Add event listeners to tax rate inputs
+        document.getElementById('TaxProfile_GstRate').addEventListener('input', calculateTotalTax);
+        document.getElementById('TaxProfile_QstRate').addEventListener('input', calculateTotalTax);
+        document.getElementById('TaxProfile_PstRate').addEventListener('input', calculateTotalTax);
+        document.getElementById('TaxProfile_HstRate').addEventListener('input', calculateTotalTax);
+
+        // Initial calculation
+        calculateTotalTax();
+    </script>
+}

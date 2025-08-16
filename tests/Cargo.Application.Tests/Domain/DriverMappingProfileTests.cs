@@ -42,14 +42,7 @@ namespace Cargo.Application.Tests.Domain
                 LastName = "Doe",
                 Email = "john.doe@example.com",
                 PhoneNumber = "+1-555-123-4567",
-                Address = new Address
-                {
-                    Street = "123 Main Street",
-                    City = "Montreal",
-                    State = "QC",
-                    ZipCode = "H3A 1B2",
-                    Country = "Canada"
-                },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                 LicenseNumber = "DL123456789",
                 LicenseType = "CDL-A",
                 LicenseExpiryDate = new DateTime(2025, 12, 31),
@@ -227,14 +220,7 @@ namespace Cargo.Application.Tests.Domain
                 LastName = "Name",
                 Email = "original@example.com",
                 PhoneNumber = "+1-555-000-0000",
-                Address = new Address
-                {
-                    Street = "Original Street",
-                    City = "Original City",
-                    State = "ON",
-                    ZipCode = "A1A 1A1",
-                    Country = "Canada"
-                },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                 LicenseNumber = "DLORIGINAL",
                 LicenseType = "CDL-A",
                 LicenseExpiryDate = new DateTime(2025, 1, 1),
@@ -301,7 +287,7 @@ namespace Cargo.Application.Tests.Domain
                 LastName = "Name",
                 Email = "original@example.com",
                 PhoneNumber = "+1-555-000-0000",
-                Address = new Address { Street = "Original Street" },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
                 LicenseNumber = "DLORIGINAL",
                 LicenseType = "CDL-A",
                 LicenseExpiryDate = new DateTime(2025, 1, 1),
@@ -335,7 +321,7 @@ namespace Cargo.Application.Tests.Domain
             Assert.Equal("Name", existingDriver.LastName);
             Assert.Equal("original@example.com", existingDriver.Email);
             Assert.Equal("+1-555-000-0000", existingDriver.PhoneNumber);
-            Assert.Equal("Original Street", existingDriver.Address.Street);
+            Assert.Equal("123 Main Street", existingDriver.Address.Street);
             Assert.Equal("DLORIGINAL", existingDriver.LicenseNumber);
             Assert.Equal("CDL-A", existingDriver.LicenseType);
             Assert.Equal(new DateTime(2025, 1, 1), existingDriver.LicenseExpiryDate);
@@ -353,7 +339,7 @@ namespace Cargo.Application.Tests.Domain
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Original",
-                Address = new Address { Street = "Original Street" }
+                Address = new Address("Canada", "QC", "Montreal", "123 Main Street", "H3A 1B2"),
             };
 
             var updateDto = new DriverUpdateDto
@@ -365,7 +351,7 @@ namespace Cargo.Application.Tests.Domain
             _mapper.Map(updateDto, existingDriver);
 
             // Assert
-            Assert.Equal("Original Street", existingDriver.Address.Street);
+            Assert.Equal("123 Main Street", existingDriver.Address.Street);
         }
 
         [Fact]
@@ -379,7 +365,7 @@ namespace Cargo.Application.Tests.Domain
                 LastName = "Doe",
                 Email = "john.doe@example.com",
                 PhoneNumber = "+1-555-123-4567",
-                Address = new Address { Street = "123 Main St" },
+                Address = new Address("Canada", "QC", "Montreal", "123 Main St", "H3A 1B2"),
                 LicenseNumber = "DL123456",
                 LicenseType = "CDL-A",
                 Status = DriverStatus.Active
@@ -389,7 +375,7 @@ namespace Cargo.Application.Tests.Domain
             {
                 FirstName = "Johnny",
                 Email = "johnny.doe@example.com",
-                YearsOfExperience = 15
+                YearsOfExperience = 15,
                 // Other fields are null and should not be updated
             };
 

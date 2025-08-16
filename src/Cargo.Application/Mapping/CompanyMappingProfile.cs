@@ -17,7 +17,7 @@ namespace Cargo.Application.Mapping
             CreateMap<Company, CompanyDto>()
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => MappingHelper.FormatAddress(src.Address)))
                 // NOTE: If you expose a stable identifier/name on TaxProfile, map it here instead of hardcoding.
-                .ForMember(dest => dest.TaxProfile, opt => opt.MapFrom(src => "Quebec"))
+                .ForMember(dest => dest.TaxProfile, opt => opt.MapFrom(src => MappingHelper.FormatTaxProfile(src.TaxProfile)))
                 .ForMember(dest => dest.DriverIds, opt => opt.MapFrom(src =>
                     src.Drivers != null ? src.Drivers.Select(d => d.Id).ToList() : new List<Guid>()))
                 .ForMember(dest => dest.VehicleIds, opt => opt.MapFrom(src =>
@@ -27,7 +27,7 @@ namespace Cargo.Application.Mapping
             CreateMap<CompanyCreateDto, Company>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => MappingHelper.ParseAddress(src.Address)))
-                .ForMember(dest => dest.TaxProfile, opt => opt.MapFrom(src => MappingHelper.CreateTaxProfile(src.TaxProfile)))
+                .ForMember(dest => dest.TaxProfile, opt => opt.MapFrom(src => MappingHelper.ParseTaxProfile(src.TaxProfile)))
                 .ForMember(dest => dest.Drivers, opt => opt.Ignore())
                 .ForMember(dest => dest.Vehicles, opt => opt.Ignore())
                 // Ignore audit fields
@@ -36,7 +36,7 @@ namespace Cargo.Application.Mapping
                 .ForMember(dest => dest.CreatedByIP, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedByIP, opt => opt.Ignore()) // ⬅ Added
+                .ForMember(dest => dest.UpdatedByIP, opt => opt.Ignore())
                 .AfterMap((src, dest) =>
                 {
                     dest.CreatedAt = DateTime.UtcNow;
@@ -52,9 +52,9 @@ namespace Cargo.Application.Mapping
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedByIP, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())  
-                .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())   
-                .ForMember(dest => dest.UpdatedByIP, opt => opt.Ignore()) 
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedByIP, opt => opt.Ignore())
                 .ForMember(dest => dest.Address, opt =>
                 {
                     opt.PreCondition(src => !string.IsNullOrWhiteSpace(src.Address));
@@ -63,7 +63,7 @@ namespace Cargo.Application.Mapping
                 .ForMember(dest => dest.TaxProfile, opt =>
                 {
                     opt.PreCondition(src => !string.IsNullOrWhiteSpace(src.TaxProfile));
-                    opt.MapFrom(src => MappingHelper.CreateTaxProfile(src.TaxProfile));
+                    opt.MapFrom(src => MappingHelper.ParseTaxProfile(src.TaxProfile));
                 })
                 .AfterMap((src, dest) =>
                 {
@@ -74,7 +74,7 @@ namespace Cargo.Application.Mapping
         }
 
 
-    
+
 
 
     }

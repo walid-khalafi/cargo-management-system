@@ -1,0 +1,61 @@
+@model Cargo.Web.Areas.Admin.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="h2">Admin Dashboard</h1>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total Users</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalUsers</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Roles</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalRoles</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Total Companies</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalCompanies</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Total Drivers</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalDrivers</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>System Overview</h5>
+                </div>
+                <div class="card-body">
+                    <p>Welcome to the Admin Dashboard. Here you can manage users, roles, and system settings.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

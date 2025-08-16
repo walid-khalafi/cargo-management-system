@@ -46,7 +46,7 @@ namespace Cargo.Domain.Entities
         {
             Drivers = new HashSet<Driver>();
             Vehicles = new HashSet<VehicleOwnership>();
-            Address = new Address();
+            Address = new Address("", "", "", "", "");
             TaxProfile = TaxProfile.CreateQuebecProfile(); // Default to Quebec profile
         }
     }

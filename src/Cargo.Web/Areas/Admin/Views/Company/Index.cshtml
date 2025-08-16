@@ -81,15 +81,15 @@
                                         <div class="btn-group" role="group">
                                             <a asp-action="Details" asp-route-id="@company.Id" 
                                                class="btn btn-sm btn-info" title="Details">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fa fa-eye"></i>
                                             </a>
                                             <a asp-action="Edit" asp-route-id="@company.Id" 
                                                class="btn btn-sm btn-warning" title="Edit">
-                                                <i class="fas fa-edit"></i>
+                                                <i class="fa fa-edit"></i>
                                             </a>
                                             <a asp-action="Delete" asp-route-id="@company.Id" 
                                                class="btn btn-sm btn-danger" title="Delete">
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fa fa-trash"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -139,7 +139,7 @@
                     <i class="fas fa-building fa-3x text-muted mb-3"></i>
                     <h5 class="text-muted">No companies found</h5>
                     <p class="text-muted">There are no companies to display.</p>
-                    <a asp-action="Create" class="btn btn-primary">
+                    <a asp-action="Create" asp-area="Admin" asp-controller="Company" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Create First Company
                     </a>
                 </div>

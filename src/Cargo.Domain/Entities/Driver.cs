@@ -26,7 +26,7 @@ namespace Cargo.Domain.Entities
         public Driver()
         {
             Status = DriverStatus.Active;
-            Address = new Address();
+            Address = new Address("","","","","");
             //Settings = new DriverSettings(1, 0, 0, FscMode.Fixed, 0, 0, "", TaxProfile.CreateOntarioProfile());
         }
 

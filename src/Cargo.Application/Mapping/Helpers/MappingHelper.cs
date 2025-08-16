@@ -2,6 +2,7 @@ using Cargo.Domain.Entities;
 using Cargo.Domain.ValueObjects;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace Cargo.Application.Mapping.Helpers
 {
@@ -30,6 +31,12 @@ namespace Cargo.Application.Mapping.Helpers
             return string.Join(", ", parts);
         }
 
+        public static string FormatTaxProfile(TaxProfile taxProfile)
+        {
+            return taxProfile.ToString();
+
+        }
+
         /// <summary>
         /// Parses a comma-separated address string into an Address value object.
         /// </summary>
@@ -38,23 +45,64 @@ namespace Cargo.Application.Mapping.Helpers
         public static Address ParseAddress(string addressString)
         {
             if (string.IsNullOrWhiteSpace(addressString))
-                return new Address();
+                return new Address("", "", "", "", "");
 
             var parts = addressString.Split(',')
                 .Select(p => p.Trim())
                 .Where(p => !string.IsNullOrEmpty(p))
                 .ToArray();
 
-            var address = new Address();
-            
-            if (parts.Length >= 1) address.Street = parts[0];
-            if (parts.Length >= 2) address.City = parts[1];
-            if (parts.Length >= 3) address.State = parts[2];
-            if (parts.Length >= 4) address.ZipCode = parts[3];
-            if (parts.Length >= 5) address.Country = parts[4];
+            string country = string.Empty;
+            string state = string.Empty;
+            string zipCode = string.Empty;  
+            string city = string.Empty;
+            string street = string.Empty;
 
-            return address;
+            if (parts.Length >= 1) street = parts[0];
+            if (parts.Length >= 2) city = parts[1];
+            if (parts.Length >= 3) state = parts[2];
+            if (parts.Length >= 4) zipCode = parts[3];
+            if (parts.Length >= 5) country = parts[4];
+
+
+            return new Address(country,state,city,street,zipCode);
         }
+
+
+        /// <summary>
+        /// Parses a formatted tax profile string into a <see cref="TaxProfile"/> instance.
+        /// Expected format: "GstRate:QstRate:PstRate:HstRate:CompoundQstOverGst".
+        /// Throws <see cref="FormatException"/> if the input is invalid.
+        /// </summary>
+        /// <param name="formatted">The formatted tax profile string.</param>
+        /// <returns>A new <see cref="TaxProfile"/> instance.</returns>
+        public static TaxProfile ParseTaxProfile(string formatted)
+        {
+            if (string.IsNullOrWhiteSpace(formatted))
+                throw new FormatException("TaxProfile string is null or empty.");
+
+            var parts = formatted
+                .Split(':', StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length != 5)
+                throw new FormatException("TaxProfile must have 5 parts: GstRate:QstRate:PstRate:HstRate:CompoundQstOverGst.");
+
+            try
+            {
+                var gst = decimal.Parse(parts[0]);
+                var qst = decimal.Parse(parts[1]);
+                var pst = decimal.Parse(parts[2]);
+                var hst = decimal.Parse(parts[3]);
+                var compound = bool.Parse(parts[4]);
+
+                return new TaxProfile(gst, qst, pst, hst, compound);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is OverflowException)
+            {
+                throw new FormatException("Failed to parse TaxProfile from string.", ex);
+            }
+        }
+
 
         /// <summary>
         /// Creates a TaxProfile value object from a string representation.

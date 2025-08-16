@@ -166,5 +166,73 @@ namespace Cargo.Domain.ValueObjects
         {
             return !(left == right);
         }
+
+
+
+        /// <summary>
+        /// Returns the combined tax profile as a formatted string.
+        /// Format: "GstRate:QstRate:PstRate:HstRate:CompoundQstOverGst".
+        /// </summary>
+        public override string ToString() =>
+            $"{GstRate}:{QstRate}:{PstRate}:{HstRate}:{CompoundQstOverGst}";
+
+
+        /// <summary>
+        /// Parses a formatted tax profile string into a <see cref="TaxProfile"/> instance.
+        /// Expected format: "GstRate:QstRate:PstRate:HstRate:CompoundQstOverGst".
+        /// Throws <see cref="FormatException"/> if the input is invalid.
+        /// </summary>
+        /// <param name="formatted">The formatted tax profile string.</param>
+        /// <returns>A new <see cref="TaxProfile"/> instance.</returns>
+        public static TaxProfile Parse(string formatted)
+        {
+            if (string.IsNullOrWhiteSpace(formatted))
+                throw new FormatException("TaxProfile string is null or empty.");
+
+            var parts = formatted
+                .Split(':', StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length != 5)
+                throw new FormatException("TaxProfile must have 5 parts: GstRate:QstRate:PstRate:HstRate:CompoundQstOverGst.");
+
+            try
+            {
+                var gst = decimal.Parse(parts[0]);
+                var qst = decimal.Parse(parts[1]);
+                var pst = decimal.Parse(parts[2]);
+                var hst = decimal.Parse(parts[3]);
+                var compound = bool.Parse(parts[4]);
+
+                return new TaxProfile(gst, qst, pst, hst, compound);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is OverflowException)
+            {
+                throw new FormatException("Failed to parse TaxProfile from string.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Attempts to parse the formatted tax profile string into a <see cref="TaxProfile"/>.
+        /// Returns <c>true</c> on success; otherwise <c>false</c> (no exception).
+        /// </summary>
+        /// <param name="formatted">The formatted tax profile string.</param>
+        /// <param name="profile">When this method returns, contains the parsed <see cref="TaxProfile"/>, if successful; otherwise, <c>null</c>.</param>
+        /// <returns><c>true</c> if parsing succeeded; otherwise, <c>false</c>.</returns>
+        public static bool TryParse(string formatted, out TaxProfile profile)
+        {
+            try
+            {
+                profile = Parse(formatted);
+                return true;
+            }
+            catch
+            {
+                profile = null!;
+                return false;
+            }
+        }
+
+
+
     }
 }

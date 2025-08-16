@@ -103,7 +103,7 @@ namespace Cargo.Web
 
             var app = builder.Build();
 
-           
+
 
             if (!app.Environment.IsDevelopment())
             {
@@ -119,15 +119,17 @@ namespace Cargo.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.MapAreaControllerRoute(
+                name: "admin",
+                areaName: "Admin",
+                pattern: "Admin/{controller=Dashboard}/{action=Index}/{id?}");
+
             // Routes
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            app.MapAreaControllerRoute(
-                name: "admin",
-                areaName: "Admin",
-                pattern: "Admin/{controller=Dashboard}/{action=Index}/{id?}");
+
 
             app.Run();
         }

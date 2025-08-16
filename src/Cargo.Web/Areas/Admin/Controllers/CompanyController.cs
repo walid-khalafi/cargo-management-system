@@ -1,28 +1,31 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Cargo.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Cargo.Application.Interfaces;
+using Cargo.Application.DTOs.Company;
 using Cargo.Domain.Entities;
 using AutoMapper;
-using Cargo.Application.DTOs.Company;
 using Cargo.Web.Areas.Admin.Models.CompanyViewModels;
 using System.Linq;
+using Cargo.Application.Mapping.Helpers;
+using Cargo.Domain.ValueObjects;
 
 namespace Cargo.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
-  //  [Authorize(Roles = "Admin")]
+    //  [Authorize(Roles = "Admin")]
     public class CompanyController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICompanyService _companyService;
         private readonly IMapper _mapper;
         private readonly ILogger<CompanyController> _logger;
 
         public CompanyController(
-            IUnitOfWork unitOfWork,
+            ICompanyService companyService,
             IMapper mapper,
             ILogger<CompanyController> logger)
         {
-            _unitOfWork = unitOfWork;
+            _companyService = companyService;
             _mapper = mapper;
             _logger = logger;
         }
@@ -32,13 +35,13 @@ namespace Cargo.Web.Areas.Admin.Controllers
         {
             try
             {
-                var companies = await _unitOfWork.Companies.GetAllAsync();
-                
+                var companies = await _companyService.GetAllCompaniesAsync();
+
                 if (!string.IsNullOrWhiteSpace(search))
                 {
-                    companies = (IReadOnlyList<Company>)companies.Where(c => 
+                    companies = companies.Where(c =>
                         c.Name.Contains(search, System.StringComparison.OrdinalIgnoreCase) ||
-                        c.RegistrationNumber.Contains(search, System.StringComparison.OrdinalIgnoreCase));
+                        c.RegistrationNumber.Contains(search, System.StringComparison.OrdinalIgnoreCase)).ToList();
                 }
 
                 var totalCount = companies.Count();
@@ -49,7 +52,7 @@ namespace Cargo.Web.Areas.Admin.Controllers
 
                 var model = new CompanyListViewModel
                 {
-                    Companies = _mapper.Map<List<CompanyDto>>(pagedCompanies),
+                    Companies = pagedCompanies.ToList(),
                     CurrentPage = page,
                     TotalPages = (int)System.Math.Ceiling(totalCount / (double)pageSize),
                     PageSize = pageSize,
@@ -71,14 +74,13 @@ namespace Cargo.Web.Areas.Admin.Controllers
         {
             try
             {
-                var company = await _unitOfWork.Companies.GetByIdAsync(id);
+                var company = await _companyService.GetCompanyByIdAsync(id);
                 if (company == null)
                 {
                     return NotFound();
                 }
 
-                var model = _mapper.Map<CompanyDto>(company);
-                return View(model);
+                return View(company);
             }
             catch (Exception ex)
             {
@@ -93,29 +95,65 @@ namespace Cargo.Web.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Admin/Company/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CompanyCreateDto model)
+        public async Task<IActionResult> Create(CompanyCreateViewModel model)
         {
+            // Check model state before doing any processing
             if (!ModelState.IsValid)
             {
+                // Return the same view with validation messages if the model is invalid
                 return View(model);
             }
 
             try
             {
-                var company = _mapper.Map<Company>(model);
-                await _unitOfWork.Companies.AddAsync(company);
-                await _unitOfWork.SaveChangesAsync();
+                // ✅ Construct the Address ValueObject from the AddressViewModel
+                var address = new Address(model.Address.Country,
+                    model.Address.State,
+                    model.Address.City,
+                    model.Address.Street,
+                    model.Address.ZipCode);
 
+
+                // ✅ Construct the TaxProfile ValueObject from the TaxProfileViewModel
+                var taxProfile = new TaxProfile(
+                    model.TaxProfile.GstRate,
+                    model.TaxProfile.QstRate,
+                    model.TaxProfile.PstRate,
+                    model.TaxProfile.HstRate,
+                    model.TaxProfile.CompoundQstOverGst
+                );
+
+                // ✅ Map the data into a DTO for the Application Layer
+                // Using ToString() here because CompanyCreateDto stores these as string
+                // In a more robust design, you'd have AddressDto and TaxProfileDto instead of strings
+                var companyDto = new CompanyCreateDto
+                {
+                    Name = model.Name,
+                    RegistrationNumber = model.RegistrationNumber,
+                    Address = MappingHelper.FormatAddress(address),      // Formatted address string
+                    TaxProfile = MappingHelper.FormatTaxProfile(taxProfile)    // Formatted tax profile string
+                };
+
+                // Call the application service to create the company
+                await _companyService.CreateCompanyAsync(companyDto);
+
+                // Store a success message in TempData for display after redirect
                 TempData["SuccessMessage"] = "Company created successfully!";
+
+                // Redirect to Index to prevent form re-submission (PRG Pattern)
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
+                // Log the exception for troubleshooting
                 _logger.LogError(ex, "Error creating company");
+
+                // Add a generic error message for the user
                 ModelState.AddModelError("", "An error occurred while creating the company. Please try again.");
+
+                // Return the same view so the user can correct and resubmit
                 return View(model);
             }
         }
@@ -123,15 +161,43 @@ namespace Cargo.Web.Areas.Admin.Controllers
         // GET: Admin/Company/Edit/5
         public async Task<IActionResult> Edit(Guid id)
         {
+
             try
             {
-                var company = await _unitOfWork.Companies.GetByIdAsync(id);
+                var company = await _companyService.GetCompanyByIdAsync(id);
                 if (company == null)
                 {
                     return NotFound();
                 }
+
                 ViewData["Id"] = id;
-                var model = _mapper.Map<CompanyUpdateDto>(company);
+
+                var address = MappingHelper.ParseAddress(company.Address);
+                var taxProfile = MappingHelper.ParseTaxProfile(company.TaxProfile);
+
+
+                var model = new CompanyEditViewModel
+                {
+                    Name = company.Name,
+                    RegistrationNumber = company.RegistrationNumber,
+                    Address = new Models.CommonViewModels.AddressViewModel()
+                    {
+                        City = address.City,
+                        Country = address.Country,
+                        State = address.State,
+                        ZipCode = address.ZipCode,
+                        Street = address.Street,
+                    },
+                    TaxProfile = new TaxProfileViewModel()
+                    {
+                        CompoundQstOverGst = taxProfile.CompoundQstOverGst,
+                        GstRate = taxProfile.GstRate,
+                        HstRate = taxProfile.GstRate,
+                        PstRate = taxProfile.GstRate,
+                        QstRate = taxProfile.GstRate,
+                    }
+                };
+
                 return View(model);
             }
             catch (Exception ex)
@@ -144,24 +210,45 @@ namespace Cargo.Web.Areas.Admin.Controllers
         // POST: Admin/Company/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, CompanyUpdateDto model)
+        public async Task<IActionResult> Edit(Guid id, CompanyEditViewModel model)
         {
+            ViewData["Id"] = id;
+
             if (!ModelState.IsValid)
             {
+
                 return View(model);
             }
 
             try
             {
-                var company = await _unitOfWork.Companies.GetByIdAsync(id);
-                if (company == null)
-                {
-                    return NotFound();
-                }
+                // ✅ Construct the Address ValueObject from the AddressViewModel
+                var address = new Address(model.Address.Country,
+                    model.Address.State,
+                    model.Address.City,
+                    model.Address.Street,
+                    model.Address.ZipCode);
 
-                _mapper.Map(model, company);
-                await _unitOfWork.Companies.UpdateAsync(company);
-                await _unitOfWork.SaveChangesAsync();
+
+                // ✅ Construct the TaxProfile ValueObject from the TaxProfileViewModel
+                var taxProfile = new TaxProfile(
+                    model.TaxProfile.GstRate,
+                    model.TaxProfile.QstRate,
+                    model.TaxProfile.PstRate,
+                    model.TaxProfile.HstRate,
+                    model.TaxProfile.CompoundQstOverGst
+                );
+
+
+                var companyDto = new CompanyUpdateDto
+                {
+                    Name = model.Name,
+                    RegistrationNumber = model.RegistrationNumber,
+                    Address = MappingHelper.FormatAddress(address),
+                    TaxProfile = MappingHelper.FormatTaxProfile(taxProfile)
+                };
+
+                await _companyService.UpdateCompanyAsync(id, companyDto);
 
                 TempData["SuccessMessage"] = "Company updated successfully!";
                 return RedirectToAction(nameof(Index));
@@ -179,14 +266,13 @@ namespace Cargo.Web.Areas.Admin.Controllers
         {
             try
             {
-                var company = await _unitOfWork.Companies.GetByIdAsync(id);
+                var company = await _companyService.GetCompanyByIdAsync(id);
                 if (company == null)
                 {
                     return NotFound();
                 }
 
-                var model = _mapper.Map<CompanyDto>(company);
-                return View(model);
+                return View(company);
             }
             catch (Exception ex)
             {
@@ -202,14 +288,11 @@ namespace Cargo.Web.Areas.Admin.Controllers
         {
             try
             {
-                var company = await _unitOfWork.Companies.GetByIdAsync(id);
-                if (company == null)
+                var result = await _companyService.DeleteCompanyAsync(id);
+                if (!result)
                 {
                     return NotFound();
                 }
-
-                await _unitOfWork.Companies.RemoveAsync(company);
-                await _unitOfWork.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Company deleted successfully!";
                 return RedirectToAction(nameof(Index));

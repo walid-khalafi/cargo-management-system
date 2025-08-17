@@ -1,0 +1,17 @@
+@* <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Custom validation for VIN format
+        $.validator.addMethod("vinformat", function(value, element) {
+            if (value.length !== 17) return false;
+            return /^[A-HJ-NPR-Z0-9]{17}$/.test(value);
+        }, "VIN must be exactly 17 characters and contain only valid characters.");
+
+        // Apply custom validation
+        $("#VIN").rules("add", {
+            vinformat: true
+        });
+    });
+</script>
+ *@

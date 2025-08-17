@@ -79,7 +79,7 @@ namespace Cargo.Domain.Entities
         /// <summary>
         /// Current physical location of the vehicle.
         /// </summary>
-        public string CurrentLocation { get; private set; }
+        public string? CurrentLocation { get; private set; }
 
         // --- Ownership and assignment ---
 

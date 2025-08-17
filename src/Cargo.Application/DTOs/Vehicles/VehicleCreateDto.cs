@@ -36,5 +36,6 @@ namespace Cargo.Application.DTOs.Vehicles
 
         [Required]
         public Guid OwnerCompanyId { get; set; }
+
     }
 }

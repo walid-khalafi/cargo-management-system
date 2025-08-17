@@ -41,7 +41,15 @@ namespace Cargo.Application.Services
         {
             var vehicle = _mapper.Map<Vehicle>(dto);
             await _unitOfWork.Vehicles.AddAsync(vehicle);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+           
             return _mapper.Map<VehicleDto>(vehicle);
         }
 
@@ -53,7 +61,16 @@ namespace Cargo.Application.Services
 
             _mapper.Map(dto, vehicle);
             await _unitOfWork.Vehicles.UpdateAsync(vehicle);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+          
             return _mapper.Map<VehicleDto>(vehicle);
         }
 

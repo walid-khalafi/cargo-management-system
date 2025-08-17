@@ -61,12 +61,19 @@ namespace Cargo.Application.Mapping
                 .ForMember(d => d.CreatedBy, o => o.Ignore())       // ← اضافه شد
                 .ForMember(d => d.UpdatedBy, o => o.Ignore())       // ← اضافه شد
                 .ForMember(d => d.PlateNumber, m => m.MapFrom(s => s.PlateNumber))
-                .ForMember(d => d.OwnerCompany, o => o.Ignore());
+                .ForMember(d => d.OwnerCompany, o => o.Ignore())
+                 .AfterMap((src, dest) =>
+                 {
+                     dest.CreatedAt = DateTime.UtcNow;
+                     dest.CreatedBy = "System";
+                     dest.CreatedByIP = "System";
+                     dest.UpdateLocation("");
+                 });
 
 
             // UpdateDto → Entity
             CreateMap<VehicleUpdateDto, Vehicle>()
-     .ForMember(d => d.Id, o => o.Ignore())
+     .ForMember(d => d.Id, o => o.Ignore()) 
      .ForMember(d => d.CreatedAt, o => o.Ignore())
      .ForMember(d => d.UpdatedAt, o => o.Ignore())
      .ForMember(d => d.Status, o => o.Ignore())          // ← اضافه شد
@@ -78,7 +85,12 @@ namespace Cargo.Application.Mapping
      .ForMember(d => d.UpdatedBy, o => o.Ignore())       // ← اضافه شد
      .ForMember(d => d.PlateNumber, m => m.MapFrom(s => s.PlateNumber))
      .ForMember(d => d.OwnerCompany, o => o.Ignore())
-     .AfterMap((src, dest) => dest.UpdatedAt = DateTime.UtcNow);
+      .AfterMap((src, dest) =>
+      {
+          dest.UpdatedAt = DateTime.UtcNow;
+          dest.UpdatedBy = "System";
+          dest.UpdateLocation("");
+      });
 
 
 

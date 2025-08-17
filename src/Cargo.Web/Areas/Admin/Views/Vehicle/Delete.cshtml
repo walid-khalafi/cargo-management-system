@@ -1,0 +1,79 @@
+@model Cargo.Application.DTOs.Vehicles.VehicleDto
+@{
+    ViewData["Title"] = "Delete Vehicle";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Delete Vehicle</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Confirm Delete</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning!</strong> You are about to delete this vehicle. This action cannot be undone.
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">License Plate</dt>
+                        <dd class="col-sm-8">@Model.RegistrationNumber</dd>
+
+                        <dt class="col-sm-4">Make</dt>
+                        <dd class="col-sm-8">@Model.Make</dd>
+
+                        <dt class="col-sm-4">Model</dt>
+                        <dd class="col-sm-8">@Model.Model</dd>
+
+                        <dt class="col-sm-4">Year</dt>
+                        <dd class="col-sm-8">@Model.Year</dd>
+
+                        <dt class="col-sm-4">VIN</dt>
+                        <dd class="col-sm-8">@Model.VIN</dd>
+                    </dl>
+                </div>
+                
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Color</dt>
+                        <dd class="col-sm-8">@Model.Color</dd>
+
+                        <dt class="col-sm-4">Fuel Type</dt>
+                        <dd class="col-sm-8">@Model.FuelType</dd>
+
+                        <dt class="col-sm-4">Capacity</dt>
+                        <dd class="col-sm-8">@Model.Capacity</dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge badge-@(Model.Status.ToString() == "Active" ? "success" : Model.Status.ToString() == "Maintenance" ? "warning" : "secondary")">
+                                @Model.Status
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Mileage</dt>
+                        <dd class="col-sm-8">@Model.Mileage</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Confirm Delete
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

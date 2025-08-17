@@ -1,0 +1,75 @@
+@model Cargo.Application.DTOs.Vehicles.VehicleDto
+@{
+    ViewData["Title"] = "Vehicle Details";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Vehicle Details</h1>
+        <div class="btn-group" role="group">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Vehicle Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">License Plate</dt>
+                        <dd class="col-sm-9">@Model.RegistrationNumber</dd>
+
+                        <dt class="col-sm-3">Make</dt>
+                        <dd class="col-sm-9">@Model.Make</dd>
+
+                        <dt class="col-sm-3">Model</dt>
+                        <dd class="col-sm-9">@Model.Model</dd>
+
+                        <dt class="col-sm-3">Year</dt>
+                        <dd class="col-sm-9">@Model.Year</dd>
+
+                        <dt class="col-sm-3">VIN</dt>
+                        <dd class="col-sm-9">@Model.VIN</dd>
+
+                        <dt class="col-sm-3">Color</dt>
+                        <dd class="col-sm-9">@Model.Color</dd>
+
+                        <dt class="col-sm-3">Fuel Type</dt>
+                        <dd class="col-sm-9">@Model.FuelType</dd>
+
+                        <dt class="col-sm-3">Capacity</dt>
+                        <dd class="col-sm-9">@Model.Capacity</dd>
+
+                        <dt class="col-sm-3">Status</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-@(Model.Status.ToString() == "Active" ? "success" : Model.Status.ToString() == "Maintenance" ? "warning" : "secondary")">
+                                @Model.Status
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-3">Current Location</dt>
+                        <dd class="col-sm-9">@Model.CurrentLocation</dd>
+
+                        <dt class="col-sm-3">Available</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-@(Model.IsAvailable ? "success" : "danger")">
+                                @(Model.IsAvailable ? "Yes" : "No")
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

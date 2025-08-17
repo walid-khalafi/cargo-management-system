@@ -1,0 +1,183 @@
+@model Cargo.Web.Areas.Admin.Models.VehicleViewModels.VehicleCreateViewModel
+@{
+    ViewData["Title"] = "Create Vehicle";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Create New Vehicle</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Vehicle Information</h5>
+                </div>
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Make" class="form-label">Make <span class="text-danger">*</span></label>
+                                <input asp-for="Make" class="form-control" placeholder="Enter vehicle make" />
+                                <span asp-validation-for="Make" class="text-danger"></span>
+                                <small class="form-text text-muted">Vehicle manufacturer (e.g., Ford, Toyota, Volvo)</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="VehicleModel" class="form-label">Model <span class="text-danger">*</span></label>
+                                <input asp-for="VehicleModel" class="form-control" placeholder="Enter vehicle model" />
+                                <span asp-validation-for="VehicleModel" class="text-danger"></span>
+                                <small class="form-text text-muted">Specific model name (e.g., F-150, Camry, VNL)</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Year" class="form-label">Year <span class="text-danger">*</span></label>
+                                <input asp-for="Year" class="form-control" type="number" min="1980" max="2100" placeholder="Enter year" />
+                                <span asp-validation-for="Year" class="text-danger"></span>
+                                <small class="form-text text-muted">Manufacturing year (1980-2100)</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Color" class="form-label">Color</label>
+                                <input asp-for="Color" class="form-control" placeholder="Enter vehicle color" />
+                                <span asp-validation-for="Color" class="text-danger"></span>
+                                <small class="form-text text-muted">Vehicle color (optional)</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="VIN" class="form-label">VIN <span class="text-danger">*</span></label>
+                                <input asp-for="VIN" class="form-control" placeholder="Enter Vehicle Identification Number" maxlength="17" />
+                                <span asp-validation-for="VIN" class="text-danger"></span>
+                                <small class="form-text text-muted">17-character unique vehicle identifier</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RegistrationNumber" class="form-label">Registration Number <span class="text-danger">*</span></label>
+                                <input asp-for="RegistrationNumber" class="form-control" placeholder="Enter license plate number" />
+                                <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                                <small class="form-text text-muted">License plate or registration number</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FuelType" class="form-label">Fuel Type <span class="text-danger">*</span></label>
+                                <select asp-for="FuelType" class="form-control">
+                                    <option value="">Select Fuel Type</option>
+                                    <option value="Gasoline">Gasoline</option>
+                                    <option value="Diesel">Diesel</option>
+                                    <option value="Electric">Electric</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="FuelType" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Capacity" class="form-label">Capacity <span class="text-danger">*</span></label>
+                                <input asp-for="Capacity" class="form-control" type="number" min="1" placeholder="Enter capacity" />
+                                <span asp-validation-for="Capacity" class="text-danger"></span>
+                                <small class="form-text text-muted">Maximum cargo capacity in appropriate units</small>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">License Plate Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="PlateNumber.PlateType" class="form-label">Plate Type</label>
+                                        <input asp-for="PlateNumber.PlateType" class="form-control" placeholder="e.g., Commercial, Personal" />
+                                        <span asp-validation-for="PlateNumber.PlateType" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="PlateNumber.Value" class="form-label">Plate Value <span class="text-danger">*</span></label>
+                                        <input asp-for="PlateNumber.Value" class="form-control" placeholder="Enter plate number" />
+                                        <span asp-validation-for="PlateNumber.Value" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="PlateNumber.IssuingAuthority" class="form-label">Issuing Authority</label>
+                                        <input asp-for="PlateNumber.IssuingAuthority" class="form-control" placeholder="e.g., DMV, Province" />
+                                        <span asp-validation-for="PlateNumber.IssuingAuthority" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="OwnerCompanyId" class="form-label">Owner Company <span class="text-danger">*</span></label>
+                            <select asp-for="OwnerCompanyId" class="form-control" asp-items="@(new SelectList(ViewBag.Companies, "Value", "Text"))">
+                                <option value="">Select Company</option>
+                            </select>
+                            <span asp-validation-for="OwnerCompanyId" class="text-danger"></span>
+                            <small class="form-text text-muted">Select the company that owns this vehicle</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Vehicle
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Help & Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Required Fields</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Make - Vehicle manufacturer</li>
+                        <li><i class="fas fa-check text-success"></i> Model - Specific model name</li>
+                        <li><i class="fas fa-check text-success"></i> Year - Manufacturing year</li>
+                        <li><i class="fas fa-check text-success"></i> VIN - 17-character identifier</li>
+                        <li><i class="fas fa-check text-success"></i> Registration Number - License plate</li>
+                        <li><i class="fas fa-check text-success"></i> Fuel Type - Gasoline, Diesel, etc.</li>
+                        <li><i class="fas fa-check text-success"></i> Capacity - Maximum cargo capacity</li>
+                        <li><i class="fas fa-check text-success"></i> Owner Company - Company that owns the vehicle</li>
+                    </ul>
+
+                    <h6>VIN Guidelines</h6>
+                    <ul class="list-unstyled">
+                        <li><small>Must be exactly 17 characters</small></li>
+                        <li><small>Contains no I, O, or Q letters</small></li>
+                        <li><small>Unique to each vehicle</small></li>
+                    </ul>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Note:</strong> Ensure all information is accurate before creating the vehicle record.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

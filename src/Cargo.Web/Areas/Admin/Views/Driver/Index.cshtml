@@ -1,0 +1,162 @@
+@model Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverListViewModel
+@{
+    ViewData["Title"] = "Drivers";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Drivers Management</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Driver
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <form method="get" class="d-flex">
+                        <input type="text" name="search" value="@Model.SearchTerm" 
+                               class="form-control me-2" placeholder="Search drivers..." />
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-times"></i> Clear
+                            </a>
+                        }
+                    </form>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">
+                        Showing @((Model.CurrentPage - 1) * Model.PageSize + 1) - 
+                        @System.Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount) 
+                        of @Model.TotalCount drivers
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (Model.Drivers.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone Number</th>
+                                <th>License Number</th>
+                                <th>License Type</th>
+                                <th>Years of Experience</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var driver in Model.Drivers)
+                            {
+                                <tr>
+                                    <td>@driver.FullName</td>
+                                    <td>@driver.Email</td>
+                                    <td>@driver.PhoneNumber</td>
+                                    <td>@driver.LicenseNumber</td>
+                                    <td>@driver.LicenseType</td>
+                                    <td>@driver.YearsOfExperience</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@driver.Id" 
+                                               class="btn btn-sm btn-info" title="Details">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@driver.Id" 
+                                               class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@driver.Id" 
+                                               class="btn btn-sm btn-danger" title="Delete">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Driver pagination">
+                        <ul class="pagination justify-content-center">
+                            @if (Model.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-action="Index" 
+                                       asp-route-page="@(Model.CurrentPage - 1)" 
+                                       asp-route-search="@Model.SearchTerm">Previous</a>
+                                </li>
+                            }
+
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" 
+                                       asp-route-page="@i" 
+                                       asp-route-search="@Model.SearchTerm">@i</a>
+                                </li>
+                            }
+
+                            @if (Model.CurrentPage < Model.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-action="Index" 
+                                       asp-route-page="@(Model.CurrentPage + 1)" 
+                                       asp-route-search="@Model.SearchTerm">Next</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-user fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No drivers found</h5>
+                    <p class="text-muted">There are no drivers to display.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Driver
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').alert('close');
+        }, 5000);
+    </script>
+}

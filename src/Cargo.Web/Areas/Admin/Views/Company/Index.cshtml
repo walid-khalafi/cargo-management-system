@@ -91,6 +91,11 @@
                                                class="btn btn-sm btn-danger" title="Delete">
                                                 <i class="fa fa-trash"></i>
                                             </a>
+                                            <button type="button" class="btn btn-sm btn-success" 
+                                                    onclick="openDriverQuickCreateModal('@company.Id', '@company.Name')" 
+                                                    title="Quick Add Driver">
+                                                <i class="fas fa-user-plus"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -148,11 +153,25 @@
     </div>
 </div>
 
+<!-- Include the modal partial -->
+@await Html.PartialAsync("~/Areas/Admin/Views/Driver/_QuickCreateModal.cshtml", 
+    new Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverCreateViewModel())
+
 @section Scripts {
+    <script src="~/js/quick-create-driver.js" asp-append-version="true"></script>
     <script>
         // Auto-dismiss alerts after 5 seconds
         setTimeout(function() {
             $('.alert').alert('close');
         }, 5000);
+
+        // Simple wrapper function to call the external function
+        function openDriverQuickCreateModal(companyId, companyName) {
+            if (typeof window.openDriverQuickCreateModal === 'function') {
+                window.openDriverQuickCreateModal(companyId, companyName);
+            } else {
+                console.error('Quick create driver function not found');
+            }
+        }
     </script>
 }

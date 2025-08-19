@@ -1,0 +1,163 @@
+@model Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverCreateViewModel
+@{
+    ViewData["Title"] = "Quick Add Driver";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Quick Add Driver</h1>
+        <a asp-controller="Company" asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Companies
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Add Driver to: <strong>@ViewBag.CompanyName</strong></h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="QuickCreate" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="CompanyId" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FirstName" class="form-label"></label>
+                                    <input asp-for="FirstName" class="form-control" />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="LastName" class="form-label"></label>
+                                    <input asp-for="LastName" class="form-control" />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label"></label>
+                                    <input asp-for="Email" class="form-control" type="email" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="PhoneNumber" class="form-label"></label>
+                                    <input asp-for="PhoneNumber" class="form-control" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="LicenseNumber" class="form-label"></label>
+                                    <input asp-for="LicenseNumber" class="form-control" />
+                                    <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="LicenseType" class="form-label"></label>
+                                    <input asp-for="LicenseType" class="form-control" />
+                                    <span asp-validation-for="LicenseType" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="LicenseExpiryDate" class="form-label"></label>
+                                    <input asp-for="LicenseExpiryDate" class="form-control" type="date" />
+                                    <span asp-validation-for="LicenseExpiryDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DateOfBirth" class="form-label"></label>
+                                    <input asp-for="DateOfBirth" class="form-control" type="date" />
+                                    <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="YearsOfExperience" class="form-label"></label>
+                                    <input asp-for="YearsOfExperience" class="form-control" type="number" min="0" max="80" />
+                                    <span asp-validation-for="YearsOfExperience" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address.Country" class="form-label">Country</label>
+                            <input asp-for="Address.Country" class="form-control" />
+                            <span asp-validation-for="Address.Country" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Address.State" class="form-label">State/Province</label>
+                                    <input asp-for="Address.State" class="form-control" />
+                                    <span asp-validation-for="Address.State" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Address.City" class="form-label">City</label>
+                                    <input asp-for="Address.City" class="form-control" />
+                                    <span asp-validation-for="Address.City" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label asp-for="Address.Street" class="form-label">Street Address</label>
+                                    <input asp-for="Address.Street" class="form-control" />
+                                    <span asp-validation-for="Address.Street" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Address.ZipCode" class="form-label">ZIP/Postal Code</label>
+                                    <input asp-for="Address.ZipCode" class="form-control" />
+                                    <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <a asp-controller="Company" asp-action="Index" class="btn btn-secondary me-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Add Driver
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

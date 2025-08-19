@@ -123,6 +123,163 @@ namespace Cargo.Web.Areas.Admin.Controllers
             return View();
         }
 
+        // GET: Admin/Driver/QuickCreate
+        public async Task<IActionResult> QuickCreate(Guid companyId, bool isModal = false)
+        {
+            var company = await _companyService.GetCompanyByIdAsync(companyId);
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            var model = new DriverCreateViewModel
+            {
+                CompanyId = companyId
+            };
+
+            if (isModal || Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_QuickCreateModal", model);
+            }
+
+            ViewBag.CompanyName = company.Name;
+            return View(model);
+        }
+
+        // POST: Admin/Driver/QuickCreate
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuickCreate(DriverCreateViewModel model)
+        {
+            bool isAjaxRequest = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
+                );
+
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Validation failed",
+                        errors = errors,
+                        errorCount = ModelState.ErrorCount
+                    });
+                }
+
+                var company = await _companyService.GetCompanyByIdAsync(model.CompanyId);
+                ViewBag.CompanyName = company?.Name ?? "Unknown Company";
+                return View(model);
+            }
+
+            // Check for duplicate email
+            var existingDriver = await _driverService.IsEmailUniqueAsync(model.Email);
+            if (!existingDriver)
+            {
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Email already exists",
+                        errors = new { Email = "A driver with this email address already exists." }
+                    });
+                }
+
+                ModelState.AddModelError("Email", "A driver with this email address already exists.");
+                var company = await _companyService.GetCompanyByIdAsync(model.CompanyId);
+                ViewBag.CompanyName = company?.Name ?? "Unknown Company";
+                return View(model);
+            }
+
+            try
+            {
+                var address = new Address(
+                    model.Address.Country,
+                    model.Address.State,
+                    model.Address.City,
+                    model.Address.Street,
+                    model.Address.ZipCode
+                );
+
+                var driverDto = new DriverCreateDto
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    PhoneNumber = model.PhoneNumber,
+                    Address = address.ToString(),
+                    LicenseNumber = model.LicenseNumber,
+                    LicenseType = model.LicenseType,
+                    LicenseExpiryDate = model.LicenseExpiryDate,
+                    DateOfBirth = model.DateOfBirth,
+                    YearsOfExperience = model.YearsOfExperience,
+                    CompanyId = model.CompanyId
+                };
+
+                var createdDriver = await _driverService.CreateDriverAsync(driverDto);
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = $"Driver {model.FirstName} {model.LastName} added successfully!",
+                        data = new
+                        {
+                            id = createdDriver.Id,
+                            name = $"{model.FirstName} {model.LastName}",
+                            email = model.Email,
+                            phone = model.PhoneNumber,
+                            licenseNumber = model.LicenseNumber
+                        },
+                        timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+
+                TempData["SuccessMessage"] = $"Driver {model.FirstName} {model.LastName} added successfully to company!";
+                return RedirectToAction("Index", "Company");
+            }
+            catch (InvalidOperationException ex)
+            {
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Business rule violation",
+                        errors = new { Email = ex.Message }
+                    });
+                }
+
+                ModelState.AddModelError("Email", ex.Message);
+                var company = await _companyService.GetCompanyByIdAsync(model.CompanyId);
+                ViewBag.CompanyName = company?.Name ?? "Unknown Company";
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Server error :{ex.Message}",
+                        error = ex.Message,
+                        stackTrace = ex.StackTrace
+                    });
+                }
+
+                ModelState.AddModelError(string.Empty, "An error occurred while creating the driver.");
+                var company = await _companyService.GetCompanyByIdAsync(model.CompanyId);
+                ViewBag.CompanyName = company?.Name ?? "Unknown Company";
+                return View(model);
+            }
+        }
+
         // POST: Admin/Driver/Create
         [HttpPost]
         [ValidateAntiForgeryToken]

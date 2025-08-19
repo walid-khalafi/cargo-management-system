@@ -48,7 +48,17 @@ namespace Cargo.Application.Services
 
             var driver = _mapper.Map<Driver>(dto);
             await _unitOfWork.Drivers.AddAsync(driver);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw new Exception($"Error : {ex}");
+            }
+     
+          
             return _mapper.Map<DriverDto>(driver);
         }
 

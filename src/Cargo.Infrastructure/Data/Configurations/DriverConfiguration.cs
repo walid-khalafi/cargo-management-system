@@ -50,6 +50,7 @@ public class DriverConfiguration : IEntityTypeConfiguration<Driver>
             .HasForeignKey(d => d.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
             
+
         // Indexes
         builder.HasIndex(d => d.Email).IsUnique();
         builder.HasIndex(d => d.LicenseNumber).IsUnique();

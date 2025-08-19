@@ -96,6 +96,11 @@
                                                     title="Quick Add Driver">
                                                 <i class="fas fa-user-plus"></i>
                                             </button>
+                                            <button type="button" class="btn btn-sm btn-info" 
+                                                    onclick="openVehicleQuickCreateModal('@company.Id', '@company.Name')" 
+                                                    title="Quick Add Vehicle">
+                                                <i class="fas fa-truck"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -153,12 +158,15 @@
     </div>
 </div>
 
-<!-- Include the modal partial -->
+<!-- Include the modal partials -->
 @await Html.PartialAsync("~/Areas/Admin/Views/Driver/_QuickCreateModal.cshtml", 
     new Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverCreateViewModel())
+@await Html.PartialAsync("~/Areas/Admin/Views/Vehicle/_QuickCreateModal.cshtml", 
+    new Cargo.Web.Areas.Admin.Models.VehicleViewModels.VehicleCreateViewModel())
 
 @section Scripts {
     <script src="~/js/quick-create-driver.js" asp-append-version="true"></script>
+    <script src="~/js/quick-create-vehicle.js" asp-append-version="true"></script>
     <script>
         // Auto-dismiss alerts after 5 seconds
         setTimeout(function() {
@@ -171,6 +179,15 @@
                 window.openDriverQuickCreateModal(companyId, companyName);
             } else {
                 console.error('Quick create driver function not found');
+            }
+        }
+
+        // Simple wrapper function to call the external function
+        function openVehicleQuickCreateModal(companyId, companyName) {
+            if (typeof window.openVehicleQuickCreateModal === 'function') {
+                window.openVehicleQuickCreateModal(companyId, companyName);
+            } else {
+                console.error('Quick create vehicle function not found');
             }
         }
     </script>

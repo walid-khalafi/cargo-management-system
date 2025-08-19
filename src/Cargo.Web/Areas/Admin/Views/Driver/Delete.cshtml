@@ -1,0 +1,134 @@
+@model Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverViewModel
+
+@{
+    ViewData["Title"] = "Delete Driver";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Delete Driver Confirmation
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">
+                            <i class="fas fa-exclamation-circle"></i> Warning!
+                        </h4>
+                        <p class="mb-0">You are about to delete the following driver record. This action cannot be undone.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="FullName" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.FullName</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Email" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.Email</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="PhoneNumber" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.PhoneNumber</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="LicenseNumber" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.LicenseNumber</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="LicenseType" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.LicenseType</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="LicenseExpiryDate" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.LicenseExpiryDate.ToString("MM/dd/yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="DateOfBirth" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.DateOfBirth.ToString("MM/dd/yyyy")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="YearsOfExperience" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.YearsOfExperience years</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Address" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">@Model.Address</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Status" class="control-label fw-bold"></label>
+                                <p class="form-control-plaintext">
+                                    <span class="badge badge-@(Model.Status == Cargo.Domain.Enums.DriverStatus.Active ? "success" : "secondary")">
+                                        @Model.Status
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+                    
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Confirm Delete
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any additional JavaScript for delete confirmation
+            $('form').on('submit', function() {
+                return confirm('Are you absolutely sure you want to delete this driver? This action cannot be undone.');
+            });
+        });
+    </script>
+}

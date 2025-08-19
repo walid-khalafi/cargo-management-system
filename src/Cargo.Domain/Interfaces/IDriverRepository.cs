@@ -87,5 +87,13 @@ namespace Cargo.Domain.Interfaces
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A read-only list of wait records for the driver.</returns>
         Task<IReadOnlyList<DriverBatchWait>> GetDriverBatchWaitsAsync(Guid driverId, CancellationToken ct = default);
+
+        /// <summary>
+        /// Gets a driver by email address.
+        /// </summary>
+        /// <param name="email">The email address to search for.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>The driver with the specified email address, or null if not found.</returns>
+        Task<Driver?> GetByEmailAsync(string email, CancellationToken ct = default);
     }
 }

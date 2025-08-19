@@ -108,6 +108,13 @@ namespace Cargo.Infrastructure.Repositories
                 .OrderByDescending(dbw => dbw.CreatedAt)
                 .ToListAsync(ct);
         }
+
+        /// <inheritdoc />
+        public async Task<Driver?> GetByEmailAsync(string email, CancellationToken ct = default)
+        {
+            return await _context.Drivers
+                .FirstOrDefaultAsync(d => d.Email == email, ct);
+        }
     }
 }
 

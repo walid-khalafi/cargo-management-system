@@ -1,13 +1,13 @@
-@model Cargo.Web.Areas.Admin.Models.CompanyViewModels.CompanyListViewModel
+@model Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverListViewModel
 @{
-    ViewData["Title"] = "Companies";
+    ViewData["Title"] = "Drivers";
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Companies Management</h1>
-        <a href="~/Admin/Company/Create" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create New Company
+        <h1 class="h3 mb-0">Drivers Management</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Driver
         </a>
     </div>
 
@@ -33,7 +33,7 @@
                 <div class="col-md-6">
                     <form method="get" class="d-flex">
                         <input type="text" name="search" value="@Model.SearchTerm" 
-                               class="form-control me-2" placeholder="Search companies..." />
+                               class="form-control me-2" placeholder="Search drivers..." />
                         <button type="submit" class="btn btn-outline-secondary">
                             <i class="fas fa-search"></i> Search
                         </button>
@@ -49,58 +49,52 @@
                     <small class="text-muted">
                         Showing @((Model.CurrentPage - 1) * Model.PageSize + 1) - 
                         @System.Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount) 
-                        of @Model.TotalCount companies
+                        of @Model.TotalCount drivers
                     </small>
                 </div>
             </div>
         </div>
 
         <div class="card-body">
-            @if (Model.Companies.Any())
+            @if (Model.Drivers.Any())
             {
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Registration Number</th>
-                                <th>Address</th>
-                                <th>Tax Profile</th>
+                                <th>Email</th>
+                                <th>Phone Number</th>
+                                <th>License Number</th>
+                                <th>License Type</th>
+                                <th>Years of Experience</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var company in Model.Companies)
+                            @foreach (var driver in Model.Drivers)
                             {
                                 <tr>
-                                    <td>@company.Name</td>
-                                    <td>@company.RegistrationNumber</td>
-                                    <td>@company.Address</td>
-                                    <td>@company.TaxProfile</td>
+                                    <td>@driver.FullName</td>
+                                    <td>@driver.Email</td>
+                                    <td>@driver.PhoneNumber</td>
+                                    <td>@driver.LicenseNumber</td>
+                                    <td>@driver.LicenseType</td>
+                                    <td>@driver.YearsOfExperience</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@company.Id" 
+                                            <a asp-action="Details" asp-route-id="@driver.Id" 
                                                class="btn btn-sm btn-info" title="Details">
                                                 <i class="fa fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@company.Id" 
+                                            <a asp-action="Edit" asp-route-id="@driver.Id" 
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fa fa-edit"></i>
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@company.Id" 
+                                            <a asp-action="Delete" asp-route-id="@driver.Id" 
                                                class="btn btn-sm btn-danger" title="Delete">
                                                 <i class="fa fa-trash"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-success" 
-                                                    onclick="openDriverQuickCreateModal('@company.Id', '@company.Name')" 
-                                                    title="Quick Add Driver">
-                                                <i class="fas fa-user-plus"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-info" 
-                                                    onclick="openVehicleQuickCreateModal('@company.Id', '@company.Name')" 
-                                                    title="Quick Add Vehicle">
-                                                <i class="fas fa-truck"></i>
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -111,7 +105,7 @@
 
                 @if (Model.TotalPages > 1)
                 {
-                    <nav aria-label="Company pagination">
+                    <nav aria-label="Driver pagination">
                         <ul class="pagination justify-content-center">
                             @if (Model.CurrentPage > 1)
                             {
@@ -146,11 +140,11 @@
             else
             {
                 <div class="text-center py-5">
-                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No companies found</h5>
-                    <p class="text-muted">There are no companies to display.</p>
-                    <a asp-action="Create" asp-area="Admin" asp-controller="Company" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create First Company
+                    <i class="fas fa-user fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No drivers found</h5>
+                    <p class="text-muted">There are no drivers to display.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Driver
                     </a>
                 </div>
             }
@@ -158,37 +152,11 @@
     </div>
 </div>
 
-<!-- Include the modal partials -->
-@await Html.PartialAsync("~/Areas/Admin/Views/Driver/_QuickCreateModal.cshtml", 
-    new Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverCreateViewModel())
-@await Html.PartialAsync("~/Areas/Admin/Views/Vehicle/_QuickCreateModal.cshtml", 
-    new Cargo.Web.Areas.Admin.Models.VehicleViewModels.VehicleCreateViewModel())
-
 @section Scripts {
-    <script src="~/js/quick-create-driver.js" asp-append-version="true"></script>
-    <script src="~/js/quick-create-vehicle.js" asp-append-version="true"></script>
     <script>
         // Auto-dismiss alerts after 5 seconds
         setTimeout(function() {
             $('.alert').alert('close');
         }, 5000);
-
-        // Simple wrapper function to call the external function
-        function openDriverQuickCreateModal(companyId, companyName) {
-            if (typeof window.openDriverQuickCreateModal === 'function') {
-                window.openDriverQuickCreateModal(companyId, companyName);
-            } else {
-                console.error('Quick create driver function not found');
-            }
-        }
-
-        // Simple wrapper function to call the external function
-        function openVehicleQuickCreateModal(companyId, companyName) {
-            if (typeof window.openVehicleQuickCreateModal === 'function') {
-                window.openVehicleQuickCreateModal(companyId, companyName);
-            } else {
-                console.error('Quick create vehicle function not found');
-            }
-        }
     </script>
 }

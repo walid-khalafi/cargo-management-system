@@ -331,6 +331,162 @@ namespace Cargo.Web.Areas.Admin.Controllers
             }
         }
 
+        // GET: Admin/Vehicle/QuickCreate
+        public async Task<IActionResult> QuickCreate(Guid companyId, bool isModal = false)
+        {
+            var company = await _companyService.GetCompanyByIdAsync(companyId);
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            var model = new VehicleCreateViewModel
+            {
+                OwnerCompanyId = companyId
+            };
+
+            if (isModal || Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_QuickCreateModal", model);
+            }
+
+            ViewBag.CompanyName = company.Name;
+            await PopulateCompanyDropdown();
+            return View(model);
+        }
+
+        // POST: Admin/Vehicle/QuickCreate
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuickCreate(VehicleCreateViewModel model)
+        {
+            bool isAjaxRequest = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
+                );
+
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Validation failed",
+                        errors = errors,
+                        errorCount = ModelState.ErrorCount
+                    });
+                }
+
+                await PopulateCompanyDropdown();
+                return View(model);
+            }
+
+            // Check for duplicate VIN
+            var existingVehicles = await _vehicleService.GetAllVehiclesAsync();
+            if (existingVehicles.Any(v => v.VIN.Equals(model.VIN, StringComparison.OrdinalIgnoreCase)))
+            {
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "VIN already exists",
+                        errors = new { VIN = "A vehicle with this VIN already exists." }
+                    });
+                }
+
+                ModelState.AddModelError("VIN", "A vehicle with this VIN already exists.");
+                await PopulateCompanyDropdown();
+                return View(model);
+            }
+
+            // Check for duplicate registration number
+            if (existingVehicles.Any(v => v.RegistrationNumber.Equals(model.RegistrationNumber, StringComparison.OrdinalIgnoreCase)))
+            {
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Registration number already exists",
+                        errors = new { RegistrationNumber = "A vehicle with this registration number already exists." }
+                    });
+                }
+
+                ModelState.AddModelError("RegistrationNumber", "A vehicle with this registration number already exists.");
+                await PopulateCompanyDropdown();
+                return View(model);
+            }
+
+            try
+            {
+                var vehicleDto = new VehicleCreateDto
+                {
+                    Make = model.Make,
+                    Model = model.VehicleModel,
+                    Year = model.Year,
+                    Color = model.Color,
+                    VIN = model.VIN,
+                    RegistrationNumber = model.RegistrationNumber,
+                    PlateNumber = new PlateNumberDto
+                    {
+                        Value = model.PlateNumber.Value,
+                        IssuingAuthority = model.PlateNumber.IssuingAuthority,
+                        PlateType = model.PlateNumber.PlateType
+                    },
+                    FuelType = model.FuelType,
+                    Capacity = model.Capacity,
+                    OwnerCompanyId = model.OwnerCompanyId
+                };
+
+                var createdVehicle = await _vehicleService.CreateVehicleAsync(vehicleDto);
+                
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = $"Vehicle {model.Make} {model.VehicleModel} ({model.Year}) added successfully!",
+                        data = new
+                        {
+                            id = createdVehicle.Id,
+                            make = model.Make,
+                            model = model.VehicleModel,
+                            year = model.Year,
+                            vin = model.VIN,
+                            registrationNumber = model.RegistrationNumber
+                        },
+                        timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+
+                TempData["SuccessMessage"] = $"Vehicle {model.Make} {model.VehicleModel} added successfully to company!";
+                return RedirectToAction("Index", "Company");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating vehicle");
+                
+                if (isAjaxRequest)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Server error: {ex.Message}",
+                        error = ex.Message,
+                        stackTrace = ex.StackTrace
+                    });
+                }
+
+                ModelState.AddModelError(string.Empty, "An error occurred while creating the vehicle.");
+                await PopulateCompanyDropdown();
+                return View(model);
+            }
+        }
+
         private async Task PopulateCompanyDropdown()
         {
             try

@@ -1,0 +1,146 @@
+@model Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverCreateViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="driverQuickCreateModal" tabindex="-1" aria-labelledby="driverQuickCreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="driverQuickCreateModalLabel">
+                    <i class="fas fa-user-plus"></i> Quick Add Driver to <span id="modalCompanyName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickCreateDriverForm" asp-action="QuickCreate" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="CompanyId" id="modalCompanyId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" class="form-control" type="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PhoneNumber" class="form-label"></label>
+                                <input asp-for="PhoneNumber" class="form-control" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LicenseNumber" class="form-label"></label>
+                                <input asp-for="LicenseNumber" class="form-control" />
+                                <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LicenseType" class="form-label"></label>
+                                <input asp-for="LicenseType" class="form-control" />
+                                <span asp-validation-for="LicenseType" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LicenseExpiryDate" class="form-label"></label>
+                                <input asp-for="LicenseExpiryDate" class="form-control" type="date" />
+                                <span asp-validation-for="LicenseExpiryDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DateOfBirth" class="form-label"></label>
+                                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="YearsOfExperience" class="form-label"></label>
+                                <input asp-for="YearsOfExperience" class="form-control" type="number" min="0" max="80" />
+                                <span asp-validation-for="YearsOfExperience" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Address.Country" class="form-label">Country</label>
+                                <input asp-for="Address.Country" class="form-control" />
+                                <span asp-validation-for="Address.Country" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Address.State" class="form-label">State/Province</label>
+                                <input asp-for="Address.State" class="form-control" />
+                                <span asp-validation-for="Address.State" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Address.City" class="form-label">City</label>
+                                <input asp-for="Address.City" class="form-control" />
+                                <span asp-validation-for="Address.City" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label asp-for="Address.Street" class="form-label">Street Address</label>
+                                <input asp-for="Address.Street" class="form-control" />
+                                <span asp-validation-for="Address.Street" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Address.ZipCode" class="form-label">ZIP/Postal Code</label>
+                                <input asp-for="Address.ZipCode" class="form-control" />
+                                <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitQuickCreateAjax()">
+                    <i class="fas fa-user-plus"></i> Add Driver
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

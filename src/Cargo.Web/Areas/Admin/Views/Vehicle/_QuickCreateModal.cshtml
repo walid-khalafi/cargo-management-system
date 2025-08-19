@@ -1,0 +1,130 @@
+@model Cargo.Web.Areas.Admin.Models.VehicleViewModels.VehicleCreateViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="vehicleQuickCreateModal" tabindex="-1" aria-labelledby="vehicleQuickCreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vehicleQuickCreateModalLabel">
+                    <i class="fas fa-truck"></i> Quick Add Vehicle to <span id="modalVehicleCompanyName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickCreateVehicleForm" asp-action="QuickCreate" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="OwnerCompanyId" id="modalVehicleCompanyId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Make" class="form-label"></label>
+                                <input asp-for="Make" class="form-control" placeholder="Enter vehicle make" />
+                                <span asp-validation-for="Make" class="text-danger"></span>
+                                <small class="form-text text-muted">Vehicle manufacturer (e.g., Ford, Toyota, Volvo)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="VehicleModel" class="form-label">Model</label>
+                                <input asp-for="VehicleModel" class="form-control" placeholder="Enter vehicle model" />
+                                <span asp-validation-for="VehicleModel" class="text-danger"></span>
+                                <small class="form-text text-muted">Specific model name (e.g., F-150, Camry, VNL)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Year" class="form-label"></label>
+                                <input asp-for="Year" class="form-control" type="number" min="1980" max="2100" />
+                                <span asp-validation-for="Year" class="text-danger"></span>
+                                <small class="form-text text-muted">Manufacturing year (1980-2100)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Color" class="form-label"></label>
+                                <input asp-for="Color" class="form-control" placeholder="Enter vehicle color" />
+                                <span asp-validation-for="Color" class="text-danger"></span>
+                                <small class="form-text text-muted">Vehicle color (optional)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="FuelType" class="form-label">Fuel Type</label>
+                                <select asp-for="FuelType" class="form-control">
+                                    <option value="">Select Fuel Type</option>
+                                    <option value="Gasoline">Gasoline</option>
+                                    <option value="Diesel">Diesel</option>
+                                    <option value="Electric">Electric</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                    <option value="Natural Gas">Natural Gas</option>
+                                </select>
+                                <span asp-validation-for="FuelType" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="VIN" class="form-label"></label>
+                                <input asp-for="VIN" class="form-control" placeholder="Enter Vehicle Identification Number" maxlength="17" />
+                                <span asp-validation-for="VIN" class="text-danger"></span>
+                                <small class="form-text text-muted">17-character unique vehicle identifier</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RegistrationNumber" class="form-label">Registration Number</label>
+                                <input asp-for="RegistrationNumber" class="form-control" placeholder="Enter license plate number" />
+                                <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                                <small class="form-text text-muted">License plate or registration number</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PlateNumber.Value" class="form-label">Plate Value</label>
+                                <input asp-for="PlateNumber.Value" class="form-control" placeholder="Enter plate number" />
+                                <span asp-validation-for="PlateNumber.Value" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PlateNumber.PlateType" class="form-label">Plate Type</label>
+                                <input asp-for="PlateNumber.PlateType" class="form-control" placeholder="e.g., Commercial, Personal" />
+                                <span asp-validation-for="PlateNumber.PlateType" class="text-danger"></span>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PlateNumber.IssuingAuthority" class="form-label">Issuing Authority</label>
+                                <input asp-for="PlateNumber.IssuingAuthority" class="form-control" placeholder="e.g., DMV, Province" />
+                                <span asp-validation-for="PlateNumber.IssuingAuthority" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Capacity" class="form-label">Capacity (tons)</label>
+                        <input asp-for="Capacity" class="form-control" type="number" min="1" placeholder="Enter capacity" />
+                        <span asp-validation-for="Capacity" class="text-danger"></span>
+                        <small class="form-text text-muted">Maximum cargo capacity in appropriate units</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitQuickCreateVehicleAjax()">
+                    <i class="fas fa-truck"></i> Add Vehicle
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

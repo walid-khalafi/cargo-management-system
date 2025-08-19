@@ -54,7 +54,11 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         // Indexes
         builder.HasIndex(v => v.VIN).IsUnique();
         builder.HasIndex(v => v.RegistrationNumber).IsUnique();
-        builder.HasIndex(v => v.OwnerCompanyId).IsUnique();
+        // Allow multiple vehicles per company => index is NOT unique
+        builder.HasIndex(v => v.OwnerCompanyId).IsUnique(false);
+
+        // If each driver can only have one vehicle at a time, keep this unique
+        // Otherwise, remove IsUnique() if drivers can be assigned multiple vehicles
         builder.HasIndex(v => v.DriverId).IsUnique();
     }
 }

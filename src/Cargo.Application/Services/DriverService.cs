@@ -39,9 +39,26 @@ namespace Cargo.Application.Services
 
         public async Task<DriverDto> CreateDriverAsync(DriverCreateDto dto)
         {
+            // Check if email already exists
+            var existingDriver = await _unitOfWork.Drivers.GetByEmailAsync(dto.Email);
+            if (existingDriver != null)
+            {
+                throw new InvalidOperationException($"A driver with email '{dto.Email}' already exists.");
+            }
+
             var driver = _mapper.Map<Driver>(dto);
             await _unitOfWork.Drivers.AddAsync(driver);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw new Exception($"Error : {ex}");
+            }
+     
+          
             return _mapper.Map<DriverDto>(driver);
         }
 
@@ -84,6 +101,12 @@ namespace Cargo.Application.Services
         {
             var drivers = await _unitOfWork.Drivers.FindAsync(d => d.Status == status);
             return _mapper.Map<IEnumerable<DriverDto>>(drivers);
+        }
+
+        public async Task<bool> IsEmailUniqueAsync(string email)
+        {
+            var driver = await _unitOfWork.Drivers.GetByEmailAsync(email);
+            return driver == null;
         }
     }
 }

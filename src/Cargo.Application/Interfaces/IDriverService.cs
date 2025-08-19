@@ -19,5 +19,12 @@ namespace Cargo.Application.Interfaces
         Task<IEnumerable<DriverDto>> GetDriversByCompanyAsync(Guid companyId);
         Task<IEnumerable<DriverDto>> GetActiveDriversAsync();
         Task<IEnumerable<DriverDto>> GetDriversByStatusAsync(DriverStatus status);
+
+        /// <summary>
+        /// Checks if an email address is already in use by another driver.
+        /// </summary>
+        /// <param name="email">The email address to check.</param>
+        /// <returns>True if the email is unique, false otherwise.</returns>
+        Task<bool> IsEmailUniqueAsync(string email);
     }
 }

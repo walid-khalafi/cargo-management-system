@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Vehicle Assignment Test";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Vehicle Assignment Flow Test</h2>
+            <p>This page tests the basic Vehicle Assignment flow implementation.</p>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5>Test Links</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a asp-action="SelectCompany" class="list-group-item list-group-item-action">
+                            <i class="fas fa-building"></i> Step 1: Select Company
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-truck"></i> Step 2: Vehicle List (requires company selection)
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-users"></i> Step 3: Driver List (requires company selection)
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-plus"></i> Step 4: Create Assignment (requires company selection)
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Implementation Status</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Company Selection Page</li>
+                        <li><i class="fas fa-check text-success"></i> Vehicle List with Assignment Status</li>
+                        <li><i class="fas fa-check text-success"></i> Driver List with Assignment Status</li>
+                        <li><i class="fas fa-check text-success"></i> Create Assignment Form</li>
+                        <li><i class="fas fa-check text-success"></i> Admin Navigation Integration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

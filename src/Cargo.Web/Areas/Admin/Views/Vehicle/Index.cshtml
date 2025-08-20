@@ -32,8 +32,8 @@
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <form method="get" class="d-flex">
-                        <input type="text" name="search" value="@Model.SearchTerm" 
-                               class="form-control me-2" placeholder="Search vehicles..." />
+                        <input type="text" name="search" value="@Model.SearchTerm" class="form-control me-2"
+                            placeholder="Search vehicles..." />
                         <button type="submit" class="btn btn-outline-secondary">
                             <i class="fas fa-search"></i> Search
                         </button>
@@ -47,8 +47,8 @@
                 </div>
                 <div class="col-md-6 text-end">
                     <small class="text-muted">
-                        Showing @((Model.CurrentPage - 1) * Model.PageSize + 1) - 
-                        @System.Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount) 
+                        Showing @((Model.CurrentPage - 1) * Model.PageSize + 1) -
+                        @System.Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount)
                         of @Model.TotalCount vehicles
                     </small>
                 </div>
@@ -68,7 +68,7 @@
                                 <th>Year</th>
                                 <th>VIN</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,24 +81,34 @@
                                     <td>@vehicle.Year</td>
                                     <td>@vehicle.VIN</td>
                                     <td>
-                                        <span class="badge bg-@(vehicle.Status.ToString() == "Active" ? "success" : vehicle.Status.ToString() == "Maintenance" ? "warning" : "secondary")">
+                                        <span
+                                            class="badge bg-@(vehicle.Status.ToString() == "Active" ? "success" : vehicle.Status.ToString() == "Maintenance" ? "warning" : "secondary")">
                                             @vehicle.Status
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@vehicle.Id" 
-                                               class="btn btn-sm btn-info" title="Details">
-                                                <i class="fa fa-eye"></i>
-                                            </a>
-                                            <a asp-action="Edit" asp-route-id="@vehicle.Id" 
-                                               class="btn btn-sm btn-warning" title="Edit">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@vehicle.Id" 
-                                               class="btn btn-sm btn-danger" title="Delete">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
+                                        <div class="btn-group dropstart">
+                                            <button type="button" class="btn btn-primary dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-v"></i> Actions
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a asp-action="Details" asp-route-id="@vehicle.Id" class="dropdown-item"
+                                                    title="Details">
+                                                    <i class="fa fa-eye"></i> Details
+                                                </a>
+                                                <a asp-action="Edit" asp-route-id="@vehicle.Id" class="dropdown-item"
+                                                    title="Edit">
+                                                    <i class="fa fa-edit"></i> Edit
+                                                </a>
+
+
+                                                <div class="dropdown-divider"></div>
+                                                <a asp-action="Delete" asp-route-id="@vehicle.Id"
+                                                    class="dropdown-item text-danger" title="Delete">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </a>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -114,27 +124,24 @@
                             @if (Model.CurrentPage > 1)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" asp-action="Index" 
-                                       asp-route-page="@(Model.CurrentPage - 1)" 
-                                       asp-route-search="@Model.SearchTerm">Previous</a>
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)"
+                                        asp-route-search="@Model.SearchTerm">Previous</a>
                                 </li>
                             }
 
                             @for (int i = 1; i <= Model.TotalPages; i++)
                             {
                                 <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                    <a class="page-link" asp-action="Index" 
-                                       asp-route-page="@i" 
-                                       asp-route-search="@Model.SearchTerm">@i</a>
+                                    <a class="page-link" asp-action="Index" asp-route-page="@i"
+                                        asp-route-search="@Model.SearchTerm">@i</a>
                                 </li>
                             }
 
                             @if (Model.CurrentPage < Model.TotalPages)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" asp-action="Index" 
-                                       asp-route-page="@(Model.CurrentPage + 1)" 
-                                       asp-route-search="@Model.SearchTerm">Next</a>
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)"
+                                        asp-route-search="@Model.SearchTerm">Next</a>
                                 </li>
                             }
                         </ul>
@@ -159,7 +166,7 @@
 @section Scripts {
     <script>
         // Auto-dismiss alerts after 5 seconds
-        setTimeout(function() {
+        setTimeout(function () {
             $('.alert').alert('close');
         }, 5000);
     </script>

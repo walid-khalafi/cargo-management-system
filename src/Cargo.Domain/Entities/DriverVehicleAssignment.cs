@@ -53,7 +53,7 @@ namespace Cargo.Domain.Entities
         /// <summary>
         /// Reason the assignment ended (if applicable).
         /// </summary>
-        public string EndReason { get; private set; }
+        public string? EndReason { get; private set; }
 
         /// <summary>
         /// Current status of the assignment (e.g., Active, Completed, Cancelled).

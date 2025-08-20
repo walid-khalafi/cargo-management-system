@@ -1,0 +1,108 @@
+@model Cargo.Web.Areas.Admin.Models.AssignmentViewModels.CreateAssignmentViewModel
+
+@{
+    ViewData["Title"] = "Create Vehicle Assignment";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Create Vehicle Assignment</h2>
+            <p class="text-muted">Assign a driver to a vehicle for company: @Model.CompanyId</p>
+            
+            <div class="mb-3">
+                <a asp-action="VehicleList" asp-route-companyId="@Model.CompanyId" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Vehicle List
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Assignment Details</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" name="companyId" value="@Model.CompanyId" />
+                        
+                        <div class="form-group">
+                            <label for="SelectedVehicleId">Vehicle</label>
+                            <select class="form-control" id="SelectedVehicleId" name="VehicleId" required>
+                                <option value="">-- Select Vehicle --</option>
+                                @foreach (var vehicle in Model.Vehicles)
+                                {
+                                    <option value="@vehicle.Id">@vehicle.Make @vehicle.Model (@vehicle.PlateNumber)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="SelectedDriverId">Driver</label>
+                            <select class="form-control" id="SelectedDriverId" name="DriverId" required>
+                                <option value="">-- Select Driver --</option>
+                                @foreach (var driver in Model.Drivers)
+                                {
+                                    <option value="@driver.Id">@driver.FirstName @driver.LastName (@driver.Email)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="DriverRole">Driver Role</label>
+                            <select class="form-control" id="DriverRole" name="DriverRole" required>
+                                <option value="">-- Select Role --</option>
+                                <option value="Primary">Primary Driver</option>
+                                <option value="Secondary">Secondary Driver</option>
+                                <option value="Backup">Backup Driver</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Notes">Notes (Optional)</label>
+                            <textarea class="form-control" id="Notes" name="Notes" rows="3" 
+                                      placeholder="Enter any additional notes about this assignment..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Assignment
+                            </button>
+                            <a asp-action="VehicleList" asp-route-companyId="@Model.CompanyId" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Vehicles:</strong> @Model.Vehicles.Count</p>
+                    <p><strong>Total Drivers:</strong> @Model.Drivers.Count</p>
+                    <p><strong>Company ID:</strong> @Model.CompanyId</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any client-side validation or interactivity here
+            $('#SelectedVehicleId').select2({
+                placeholder: 'Select a vehicle',
+                allowClear: true
+            });
+            
+            $('#SelectedDriverId').select2({
+                placeholder: 'Select a driver',
+                allowClear: true
+            });
+        });
+    </script>
+}

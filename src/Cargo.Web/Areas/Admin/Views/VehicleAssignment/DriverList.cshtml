@@ -12,7 +12,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="mb-1">Driver Management</h2>
-                    <p class="text-muted mb-0">Manage driver assignments for <strong>@Model.CompanyName</strong></p>
+                    <p class="text-muted mb-0">Manage vehicle assignments for <strong>@Model.CompanyName</strong></p>
                 </div>
                 <div class="d-flex gap-2">
                     <a asp-action="SelectCompany" class="btn btn-outline-secondary">
@@ -50,6 +50,7 @@
                             <select id="sortBy" class="form-select">
                                 <option value="name">Sort by Name</option>
                                 <option value="license">Sort by License</option>
+                                <option value="phone">Sort by Phone</option>
                                 <option value="status">Sort by Status</option>
                             </select>
                         </div>
@@ -77,25 +78,29 @@
                 @foreach (var driver in Model.Drivers)
                 {
                     var assignment = Model.Assignments.FirstOrDefault(a => a.DriverId == driver.Id && a.Status == Cargo.Domain.Enums.AssignmentStatus.Active);
-                    
-                    <div class="col-lg-6 col-xl-4 mb-4 driver-card" data-status="@(assignment != null ? "assigned" : "available")" data-name="@driver.FirstName @driver.LastName" data-license="@driver.LicenseNumber">
+
+                    <div class="col-lg-6 col-xl-4 mb-4 driver-card"
+                         data-status="@(assignment != null ? "assigned" : "available")"
+                         data-name="@($"{driver.FirstName} {driver.LastName}")"
+                         data-license="@driver.LicenseNumber"
+                         data-phone="@driver.PhoneNumber">
                         <div class="card h-100 shadow-sm">
                             <div class="card-header bg-light">
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-circle me-3">
-                                        <span class="avatar-text">@(driver.FirstName[0])@(driver.LastName[0])</span>
+                                    <div class="driver-icon-circle me-3">
+                                        <i class="fas fa-user"></i>
                                     </div>
                                     <div>
                                         <h5 class="card-title mb-0">@driver.FirstName @driver.LastName</h5>
-                                        <small class="text-muted">@driver.Email</small>
+                                        <small class="text-muted">@driver.LicenseNumber</small>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row mb-3">
                                     <div class="col-6">
-                                        <small class="text-muted d-block">License</small>
-                                        <strong>@driver.LicenseNumber</strong>
+                                        <small class="text-muted d-block">Phone</small>
+                                        <strong>@driver.PhoneNumber</strong>
                                     </div>
                                     <div class="col-6">
                                         <small class="text-muted d-block">Status</small>
@@ -113,23 +118,37 @@
                                         }
                                     </div>
                                 </div>
-                                
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <small class="text-muted d-block">Driver Details</small>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Email: @driver.Email</span>
+                                            <span>Status: @driver.Status</span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 @if (assignment != null)
                                 {
                                     <div class="alert alert-info p-2 mb-3">
-                                        <small class="d-block text-muted">Assigned Vehicle</small>
-                                        <strong>Vehicle ID: @assignment.VehicleId.ToString().Substring(0, 8)...</strong>
+                                        <small class="d-block text-muted">Assignment ID</small>
+                                        <strong>@assignment.Id.ToString().Substring(0, 8)...</strong>
                                     </div>
                                 }
-                                
+
                                 <div class="row">
                                     <div class="col-12">
                                         @if (assignment == null)
                                         {
-                                            <a asp-action="Create" asp-route-companyId="@Model.CompanyId" asp-route-driverId="@driver.Id" 
-                                               class="btn btn-primary btn-sm w-100">
+                                            <button type="button" class="btn btn-primary btn-sm w-100 assign-vehicle-btn"
+                                                    data-driver-id="@driver.Id"
+                                                    data-driver-name="@($"{driver.FirstName} {driver.LastName}")"
+                                                    data-driver-license="@driver.LicenseNumber"
+                                                    data-driver-phone="@driver.PhoneNumber"
+                                                    data-driver-email="@driver.Email">
                                                 <i class="fas fa-plus me-1"></i> Assign Vehicle
-                                            </a>
+                                            </button>
                                         }
                                         else
                                         {
@@ -163,9 +182,109 @@
     </div>
 </div>
 
+<!-- Assign Vehicle Modal -->
+<div class="modal fade" id="assignVehicleModal" tabindex="-1" aria-labelledby="assignVehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignVehicleModalLabel">
+                    <i class="fas fa-truck me-2"></i>Assign Vehicle to Driver
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalLoading" class="text-center py-4" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading available vehicles...</p>
+                </div>
+                
+                <div id="modalError" class="alert alert-danger" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="modalErrorText"></span>
+                </div>
+                
+                <form id="assignVehicleForm">
+                    <input type="hidden" id="driverId" name="driverId" />
+                    <input type="hidden" id="companyId" name="companyId" value="@Model.CompanyId" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Driver Information</label>
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 id="driverName" class="card-title mb-1"></h6>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <strong>License:</strong> <span id="driverLicense"></span><br>
+                                        <strong>Phone:</strong> <span id="driverPhone"></span><br>
+                                        <strong>Email:</strong> <span id="driverEmail"></span>
+                                    </small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="vehicleId" class="form-label">
+                            <i class="fas fa-truck me-1"></i>Select Vehicle
+                        </label>
+                        <select class="form-select" id="vehicleId" name="vehicleId" required>
+                            <option value="">-- Select a vehicle --</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a vehicle.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="driverRole" class="form-label">
+                            <i class="fas fa-id-badge me-1"></i>Driver Role
+                        </label>
+                        <select class="form-select" id="driverRole" name="driverRole" required>
+                            <option value="0">Primary Driver</option>
+                            <option value="1">Secondary Driver</option>
+                            <option value="2">Backup Driver</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">
+                            <i class="fas fa-sticky-note me-1"></i>Notes (Optional)
+                        </label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Add any additional notes about this assignment..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="btnAssignVehicle">
+                    <i class="fas fa-check me-1"></i>Assign Vehicle
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="successToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
 <!-- CSS Styles -->
 <style>
-    .avatar-circle {
+    .driver-icon-circle {
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -174,7 +293,6 @@
         align-items: center;
         justify-content: center;
         color: white;
-        font-weight: bold;
         font-size: 1.2rem;
     }
 
@@ -182,9 +300,9 @@
         transition: transform 0.2s ease-in-out;
     }
 
-    .driver-card:hover {
-        transform: translateY(-2px);
-    }
+        .driver-card:hover {
+            transform: translateY(-2px);
+        }
 
     .card {
         border: none;
@@ -203,12 +321,21 @@
         padding: 0.375rem 0.75rem;
     }
 
+    .modal-lg {
+        max-width: 700px;
+    }
+
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
     @@media (max-width: 768px) {
         .d-flex.justify-content-between {
             flex-direction: column;
             align-items: flex-start !important;
         }
-        
+
         .d-flex.gap-2 {
             margin-top: 1rem;
         }
@@ -223,37 +350,168 @@
             const $emptyState = $('#emptyState');
             const $loadingState = $('#loadingState');
             const $paginationContainer = $('#paginationContainer');
-            
+            const assignVehicleModal = new bootstrap.Modal(document.getElementById('assignVehicleModal'));
+            const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+
             // Search functionality
             $('#driverSearch').on('input', function() {
                 filterDrivers();
             });
-            
+
             // Status filter
             $('#statusFilter').on('change', function() {
                 filterDrivers();
             });
-            
+
             // Sort functionality
             $('#sortBy').on('change', function() {
                 sortDrivers($(this).val());
             });
-            
+
+            // Modal functionality
+            let currentDriverId = null;
+
+            // Assign Vehicle button click
+            $(document).on('click', '.assign-vehicle-btn', function() {
+                const $btn = $(this);
+                currentDriverId = $btn.data('driver-id');
+                
+                // Populate driver information
+                $('#driverId').val(currentDriverId);
+                $('#driverName').text($btn.data('driver-name'));
+                $('#driverLicense').text($btn.data('driver-license'));
+                $('#driverPhone').text($btn.data('driver-phone'));
+                $('#driverEmail').text($btn.data('driver-email'));
+                
+                // Reset form
+                $('#assignVehicleForm')[0].reset();
+                $('#modalError').hide();
+                
+                // Load available vehicles
+                loadAvailableVehicles();
+                
+                // Show modal
+                assignVehicleModal.show();
+            });
+
+            function loadAvailableVehicles() {
+                $('#modalLoading').show();
+                $('#vehicleId').empty().append('<option value="">-- Select a vehicle --</option>');
+                
+                $.ajax({
+                    url: '@Url.Action("GetAvailableVehicles", "VehicleAssignment", new { area = "Admin" })',
+                    type: 'GET',
+                    data: { companyId: '@Model.CompanyId' },
+                    success: function(response) {
+                        $('#modalLoading').hide();
+                        
+                        if (response.success && response.vehicles && response.vehicles.length > 0) {
+                            response.vehicles.forEach(function(vehicle) {
+                                $('#vehicleId').append(
+                                    `<option value="${vehicle.id}">${vehicle.make} ${vehicle.model} (${vehicle.plateNumber})</option>`
+                                );
+                            });
+                        } else {
+                            $('#modalErrorText').text('No available vehicles found for this company.');
+                            $('#modalError').show();
+                        }
+                    },
+                    error: function() {
+                        $('#modalLoading').hide();
+                        $('#modalErrorText').text('Error loading vehicles. Please try again.');
+                        $('#modalError').show();
+                    }
+                });
+            }
+
+            // Assign vehicle form submission
+            $('#btnAssignVehicle').click(function() {
+                const $btn = $(this);
+                const $form = $('#assignVehicleForm');
+                
+                // Validate form
+                if (!$form[0].checkValidity()) {
+                    $form[0].reportValidity();
+                    return;
+                }
+                
+                // Disable button and show loading
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Assigning...');
+                
+                const formData = {
+                    driverId: $('#driverId').val(),
+                    vehicleId: $('#vehicleId').val(),
+                    driverRole: parseInt($('#driverRole').val()),
+                    notes: $('#notes').val()
+                };
+                
+                $.ajax({
+                    url: '@Url.Action("CreateAssignmentAjax", "VehicleAssignment", new { area = "Admin" })',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() || $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        $btn.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Assign Vehicle');
+                        
+                        if (response.success) {
+                            // Show success toast
+                            $('#successToastMessage').text(response.message);
+                            successToast.show();
+                            
+                            // Close modal
+                            assignVehicleModal.hide();
+                            
+                            // Refresh the page to show updated assignments
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            $('#modalErrorText').text(response.message);
+                            $('#modalError').show();
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Assign Vehicle');
+                        
+                        let errorMessage = 'Error creating assignment. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        
+                        $('#modalErrorText').text(errorMessage);
+                        $('#modalError').show();
+                    }
+                });
+            });
+
+            // Reset modal on close
+            $('#assignVehicleModal').on('hidden.bs.modal', function() {
+                $('#assignVehicleForm')[0].reset();
+                $('#modalError').hide();
+                $('#vehicleId').empty().append('<option value="">-- Select a vehicle --</option>');
+            });
+
             function filterDrivers() {
                 const searchTerm = $('#driverSearch').val().toLowerCase();
                 const statusFilter = $('#statusFilter').val();
-                
+
                 let visibleCount = 0;
-                
+
                 $('.driver-card').each(function() {
                     const $card = $(this);
                     const name = $card.data('name').toLowerCase();
                     const license = $card.data('license').toLowerCase();
+                    const phone = $card.data('phone').toLowerCase();
                     const status = $card.data('status');
-                    
-                    const matchesSearch = name.includes(searchTerm) || license.includes(searchTerm);
+
+                    const matchesSearch = name.includes(searchTerm) || 
+                                        license.includes(searchTerm) || 
+                                        phone.includes(searchTerm);
                     const matchesStatus = !statusFilter || status === statusFilter;
-                    
+
                     if (matchesSearch && matchesStatus) {
                         $card.show();
                         visibleCount++;
@@ -261,7 +519,7 @@
                         $card.hide();
                     }
                 });
-                
+
                 // Show/hide empty state
                 if (visibleCount === 0) {
                     $emptyState.show();
@@ -271,7 +529,7 @@
                     $driversContainer.show();
                 }
             }
-            
+
             function sortDrivers(sortBy) {
                 const $cards = $('.driver-card');
                 const sortedCards = $cards.sort(function(a, b) {
@@ -279,24 +537,28 @@
                     const bName = $(b).data('name');
                     const aLicense = $(a).data('license');
                     const bLicense = $(b).data('license');
+                    const aPhone = $(a).data('phone');
+                    const bPhone = $(b).data('phone');
                     const aStatus = $(a).data('status');
                     const bStatus = $(b).data('status');
-                    
+
                     switch(sortBy) {
                         case 'name':
                             return aName.localeCompare(bName);
                         case 'license':
                             return aLicense.localeCompare(bLicense);
+                        case 'phone':
+                            return aPhone.localeCompare(bPhone);
                         case 'status':
                             return aStatus.localeCompare(bStatus);
                         default:
                             return 0;
                     }
                 });
-                
+
                 $driversContainer.empty().append(sortedCards);
             }
-            
+
             // Initial check for empty state
             if ($('.driver-card:visible').length === 0) {
                 $emptyState.show();

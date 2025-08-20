@@ -1,0 +1,52 @@
+@model IEnumerable<Cargo.Application.DTOs.Company.CompanyDto>
+
+@{
+    ViewData["Title"] = "Select Company";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Select Company</h2>
+            <p class="text-muted">Choose a company to view vehicles and drivers for assignment</p>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Available Companies</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Company Name</th>
+                                    <th>Registration Number</th>
+                                    <th>Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var company in Model)
+                                {
+                                    <tr>
+                                        <td>@company.Name</td>
+                                        <td>@company.RegistrationNumber</td>
+                                        <td>@company.Address</td>
+                                        <td>
+                                            <a asp-action="VehicleList" asp-route-companyId="@company.Id" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-truck"></i> View Vehicles
+                                            </a>
+                                            <a asp-action="DriverList" asp-route-companyId="@company.Id" class="btn btn-info btn-sm">
+                                                <i class="fas fa-user"></i> View Drivers
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

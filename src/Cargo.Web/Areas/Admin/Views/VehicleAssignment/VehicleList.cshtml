@@ -1,0 +1,324 @@
+@using Cargo.Web.Areas.Admin.Models.AssignmentViewModels
+@model VehicleAssignmentViewModel
+
+@{
+    ViewData["Title"] = "Vehicle List";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Vehicle Management</h2>
+                    <p class="text-muted mb-0">Manage vehicle assignments for <strong>@Model.CompanyName</strong></p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a asp-action="SelectCompany" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                    <a asp-action="Create" asp-route-companyId="@Model.CompanyId" class="btn btn-success">
+                        <i class="fas fa-plus"></i> New Assignment
+                    </a>
+                    <a asp-action="DriverList" asp-route-companyId="@Model.CompanyId" class="btn btn-info">
+                        <i class="fas fa-users"></i> View Drivers
+                    </a>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" id="vehicleSearch" class="form-control" placeholder="Search vehicles...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="statusFilter" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="assigned">Assigned</option>
+                                <option value="available">Available</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="sortBy" class="form-select">
+                                <option value="make">Sort by Make</option>
+                                <option value="plate">Sort by Plate</option>
+                                <option value="year">Sort by Year</option>
+                                <option value="status">Sort by Status</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-5" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading vehicles...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-5" style="display: none;">
+                <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                <h4>No vehicles found</h4>
+                <p class="text-muted">There are no vehicles available for this company.</p>
+            </div>
+
+            <!-- Vehicles Grid -->
+            <div id="vehiclesContainer" class="row">
+                @foreach (var vehicle in Model.Vehicles)
+                {
+                    var assignment = Model.Assignments.FirstOrDefault(a => a.VehicleId == vehicle.Id && a.Status == Cargo.Domain.Enums.AssignmentStatus.Active);
+
+                    <div class="col-lg-6 col-xl-4 mb-4 vehicle-card"
+                         data-status="@(assignment != null ? "assigned" : "available")"
+                         data-make="@vehicle.Make"
+                         data-plate="@vehicle.PlateNumber"
+                         data-year="@vehicle.Year">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-header bg-light">
+                                <div class="d-flex align-items-center">
+                                    <div class="vehicle-icon-circle me-3">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="card-title mb-0">@vehicle.Make @vehicle.Model</h5>
+                                        <small class="text-muted">@vehicle.Year</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Plate Number</small>
+                                        <strong>@vehicle.PlateNumber.PlateType @vehicle.PlateNumber.Value @vehicle.PlateNumber.IssuingAuthority</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Status</small>
+                                        @if (assignment != null)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Assigned
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-clock me-1"></i>Available
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <small class="text-muted d-block">Vehicle Details</small>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Color: @vehicle.Color</span>
+                                            <span>Capacity: @vehicle.Capacity</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (assignment != null)
+                                {
+                                    <div class="alert alert-info p-2 mb-3">
+                                        <small class="d-block text-muted">Assignment ID</small>
+                                        <strong>@assignment.Id.ToString().Substring(0, 8)...</strong>
+                                    </div>
+                                }
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        @if (assignment == null)
+                                        {
+                                            <a asp-action="Create" asp-route-companyId="@Model.CompanyId" asp-route-vehicleId="@vehicle.Id"
+                                               class="btn btn-primary btn-sm w-100">
+                                                <i class="fas fa-plus me-1"></i> Assign Driver
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-secondary btn-sm w-100" disabled>
+                                                <i class="fas fa-check me-1"></i> Already Assigned
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Vehicle pagination" id="paginationContainer" style="display: none;">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- CSS Styles -->
+<style>
+    .vehicle-icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .vehicle-card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .vehicle-card:hover {
+            transform: translateY(-2px);
+        }
+
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+    }
+
+    @@media (max-width: 768px) {
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+
+        .d-flex.gap-2 {
+            margin-top: 1rem;
+        }
+    }
+</style>
+
+<!-- JavaScript for Interactivity -->
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const $vehiclesContainer = $('#vehiclesContainer');
+            const $emptyState = $('#emptyState');
+            const $loadingState = $('#loadingState');
+            const $paginationContainer = $('#paginationContainer');
+
+            // Search functionality
+            $('#vehicleSearch').on('input', function() {
+                filterVehicles();
+            });
+
+            // Status filter
+            $('#statusFilter').on('change', function() {
+                filterVehicles();
+            });
+
+            // Sort functionality
+            $('#sortBy').on('change', function() {
+                sortVehicles($(this).val());
+            });
+
+            function filterVehicles() {
+                const searchTerm = $('#vehicleSearch').val().toLowerCase();
+                const statusFilter = $('#statusFilter').val();
+
+                let visibleCount = 0;
+
+                $('.vehicle-card').each(function() {
+                    const $card = $(this);
+                    const make = $card.data('make').toLowerCase();
+                    const plate = $card.data('plate').toLowerCase();
+                    const status = $card.data('status');
+
+                    const matchesSearch = make.includes(searchTerm) || plate.includes(searchTerm);
+                    const matchesStatus = !statusFilter || status === statusFilter;
+
+                    if (matchesSearch && matchesStatus) {
+                        $card.show();
+                        visibleCount++;
+                    } else {
+                        $card.hide();
+                    }
+                });
+
+                // Show/hide empty state
+                if (visibleCount === 0) {
+                    $emptyState.show();
+                    $vehiclesContainer.hide();
+                } else {
+                    $emptyState.hide();
+                    $vehiclesContainer.show();
+                }
+            }
+
+            function sortVehicles(sortBy) {
+                const $cards = $('.vehicle-card');
+                const sortedCards = $cards.sort(function(a, b) {
+                    const aMake = $(a).data('make');
+                    const bMake = $(b).data('make');
+                    const aPlate = $(a).data('plate');
+                    const bPlate = $(b).data('plate');
+                    const aYear = $(a).data('year');
+                    const bYear = $(b).data('year');
+                    const aStatus = $(a).data('status');
+                    const bStatus = $(b).data('status');
+
+                    switch(sortBy) {
+                        case 'make':
+                            return aMake.localeCompare(bMake);
+                        case 'plate':
+                            return aPlate.localeCompare(bPlate);
+                        case 'year':
+                            return bYear - aYear; // Newest first
+                        case 'status':
+                            return aStatus.localeCompare(bStatus);
+                        default:
+                            return 0;
+                    }
+                });
+
+                $vehiclesContainer.empty().append(sortedCards);
+            }
+
+            // Initial check for empty state
+            if ($('.vehicle-card:visible').length === 0) {
+                $emptyState.show();
+            }
+        });
+    </script>
+}

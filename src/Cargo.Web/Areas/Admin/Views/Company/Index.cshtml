@@ -32,8 +32,8 @@
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <form method="get" class="d-flex">
-                        <input type="text" name="search" value="@Model.SearchTerm" 
-                               class="form-control me-2" placeholder="Search companies..." />
+                        <input type="text" name="search" value="@Model.SearchTerm" class="form-control me-2"
+                            placeholder="Search companies..." />
                         <button type="submit" class="btn btn-outline-secondary">
                             <i class="fas fa-search"></i> Search
                         </button>
@@ -47,8 +47,8 @@
                 </div>
                 <div class="col-md-6 text-end">
                     <small class="text-muted">
-                        Showing @((Model.CurrentPage - 1) * Model.PageSize + 1) - 
-                        @System.Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount) 
+                        Showing @((Model.CurrentPage - 1) * Model.PageSize + 1) -
+                        @System.Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount)
                         of @Model.TotalCount companies
                     </small>
                 </div>
@@ -58,56 +58,65 @@
         <div class="card-body">
             @if (Model.Companies.Any())
             {
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Registration Number</th>
+                            <th>Address</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var company in Model.Companies)
+                        {
                             <tr>
-                                <th>Name</th>
-                                <th>Registration Number</th>
-                                <th>Address</th>
-                                <th>Tax Profile</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var company in Model.Companies)
-                            {
-                                <tr>
-                                    <td>@company.Name</td>
-                                    <td>@company.RegistrationNumber</td>
-                                    <td>@company.Address</td>
-                                    <td>@company.TaxProfile</td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@company.Id" 
-                                               class="btn btn-sm btn-info" title="Details">
-                                                <i class="fa fa-eye"></i>
+                                <td>@company.Name</td>
+                                <td>@company.RegistrationNumber</td>
+                                <td>@company.Address</td>
+                                <td>
+                                    <div class="btn-group dropstart">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v"></i> Actions
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a asp-action="Details" asp-route-id="@company.Id" class="dropdown-item"
+                                                title="Details">
+                                                <i class="fa fa-eye"></i> Details
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@company.Id" 
-                                               class="btn btn-sm btn-warning" title="Edit">
-                                                <i class="fa fa-edit"></i>
+                                            <a asp-action="Edit" asp-route-id="@company.Id" class="dropdown-item" title="Edit">
+                                                <i class="fa fa-edit"></i> Edit
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@company.Id" 
-                                               class="btn btn-sm btn-danger" title="Delete">
-                                                <i class="fa fa-trash"></i>
+                                            <a asp-controller="VehicleAssignment" asp-action="Create"
+                                                asp-route-companyId="@company.Id" class="dropdown-item"
+                                                title="Vehicle Assignment">
+                                                <i class="fa fa-link"></i> Vehicle Assignment
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-success" 
-                                                    onclick="openDriverQuickCreateModal('@company.Id', '@company.Name')" 
-                                                    title="Quick Add Driver">
-                                                <i class="fas fa-user-plus"></i>
+                                            <button type="button" class="dropdown-item"
+                                                onclick="openDriverQuickCreateModal('@company.Id', '@company.Name')"
+                                                title="Quick Add Driver">
+                                                <i class="fas fa-user-plus"></i> Quick Add Driver
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-info" 
-                                                    onclick="openVehicleQuickCreateModal('@company.Id', '@company.Name')" 
-                                                    title="Quick Add Vehicle">
-                                                <i class="fas fa-truck"></i>
+                                            <button type="button" class="dropdown-item"
+                                                onclick="openVehicleQuickCreateModal('@company.Id', '@company.Name')"
+                                                title="Quick Add Vehicle">
+                                                <i class="fas fa-truck"></i> Quick Add Vehicle
                                             </button>
+                                            <div class="dropdown-divider"></div>
+                                            <a asp-action="Delete" asp-route-id="@company.Id" class="dropdown-item text-danger"
+                                                title="Delete">
+                                                <i class="fa fa-trash"></i> Delete
+                                            </a>
                                         </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
 
                 @if (Model.TotalPages > 1)
                 {
@@ -116,27 +125,24 @@
                             @if (Model.CurrentPage > 1)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" asp-action="Index" 
-                                       asp-route-page="@(Model.CurrentPage - 1)" 
-                                       asp-route-search="@Model.SearchTerm">Previous</a>
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)"
+                                        asp-route-search="@Model.SearchTerm">Previous</a>
                                 </li>
                             }
 
                             @for (int i = 1; i <= Model.TotalPages; i++)
                             {
                                 <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                    <a class="page-link" asp-action="Index" 
-                                       asp-route-page="@i" 
-                                       asp-route-search="@Model.SearchTerm">@i</a>
+                                    <a class="page-link" asp-action="Index" asp-route-page="@i"
+                                        asp-route-search="@Model.SearchTerm">@i</a>
                                 </li>
                             }
 
                             @if (Model.CurrentPage < Model.TotalPages)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" asp-action="Index" 
-                                       asp-route-page="@(Model.CurrentPage + 1)" 
-                                       asp-route-search="@Model.SearchTerm">Next</a>
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)"
+                                        asp-route-search="@Model.SearchTerm">Next</a>
                                 </li>
                             }
                         </ul>
@@ -159,17 +165,17 @@
 </div>
 
 <!-- Include the modal partials -->
-@await Html.PartialAsync("~/Areas/Admin/Views/Driver/_QuickCreateModal.cshtml", 
-    new Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverCreateViewModel())
-@await Html.PartialAsync("~/Areas/Admin/Views/Vehicle/_QuickCreateModal.cshtml", 
-    new Cargo.Web.Areas.Admin.Models.VehicleViewModels.VehicleCreateViewModel())
+@await Html.PartialAsync("~/Areas/Admin/Views/Driver/_QuickCreateModal.cshtml",
+new Cargo.Web.Areas.Admin.Models.DriverViewModels.DriverCreateViewModel())
+@await Html.PartialAsync("~/Areas/Admin/Views/Vehicle/_QuickCreateModal.cshtml",
+new Cargo.Web.Areas.Admin.Models.VehicleViewModels.VehicleCreateViewModel())
 
 @section Scripts {
     <script src="~/js/quick-create-driver.js" asp-append-version="true"></script>
     <script src="~/js/quick-create-vehicle.js" asp-append-version="true"></script>
     <script>
         // Auto-dismiss alerts after 5 seconds
-        setTimeout(function() {
+        setTimeout(function () {
             $('.alert').alert('close');
         }, 5000);
 

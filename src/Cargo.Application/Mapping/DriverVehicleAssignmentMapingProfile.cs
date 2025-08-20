@@ -39,7 +39,13 @@ namespace Cargo.Application.Mapping
             .ForMember(dest => dest.CreatedByIP, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedByIP, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
+            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
+             .AfterMap((src, dest) =>
+             {
+                 dest.CreatedAt = DateTime.UtcNow;
+                 dest.CreatedBy = "System";
+                 dest.CreatedByIP = "System";
+             });
 
             // Map from Update DTO → Entity
             // Ignores properties that shouldn't be overwritten directly by updates
@@ -51,7 +57,13 @@ namespace Cargo.Application.Mapping
      .ForMember(dest => dest.CreatedByIP, opt => opt.Ignore())
      .ForMember(dest => dest.UpdatedByIP, opt => opt.Ignore())
      .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-     .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
+     .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
+      .AfterMap((src, dest) =>
+      {
+          dest.UpdatedAt = DateTime.UtcNow;
+          dest.UpdatedBy = "System";
+          dest.UpdatedByIP = "System";
+      });
         }
     }
 }

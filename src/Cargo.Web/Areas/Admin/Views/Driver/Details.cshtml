@@ -9,113 +9,142 @@
         <h1 class="h3 mb-0">
             <i class="fas fa-user-tie"></i> Driver Details
         </h1>
-      
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this driver?');">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
     </div>
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card shadow-sm">
+            <!-- Personal Information Card -->
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-info-circle"></i> Driver Information
+                        <i class="fas fa-user-circle"></i> Personal Information
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-user fa-2x text-primary"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <label class="form-label fw-bold text-muted mb-1">Full Name</label>
-                                    <p class="h5 mb-0">@Model.FullName</p>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Full Name</label>
+                                <p class="h5 mb-0">@Model.FullName</p>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-envelope fa-2x text-primary"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <label class="form-label fw-bold text-muted mb-1">Email</label>
-                                    <p class="h5 mb-0">@Model.Email</p>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Email Address</label>
+                                <p class="h5 mb-0">@Model.Email</p>
                             </div>
                         </div>
                     </div>
-
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-phone text-primary me-2"></i>Phone Number
-                            </label>
-                            <p class="form-control-plaintext">@Model.PhoneNumber</p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Phone Number</label>
+                                <p class="mb-0">@Model.PhoneNumber</p>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-id-card text-primary me-2"></i>License Number
-                            </label>
-                            <p class="form-control-plaintext">@Model.LicenseNumber</p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Date of Birth</label>
+                                <p class="mb-0">@Model.DateOfBirth.ToString("MMMM dd, yyyy")</p>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
+            <!-- License Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card"></i> License Information
+                    </h5>
+                </div>
+                <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-file-alt text-primary me-2"></i>License Type
-                            </label>
-                            <p class="form-control-plaintext">@Model.LicenseType</p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">License Number</label>
+                                <p class="mb-0">@Model.LicenseNumber</p>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-calendar-alt text-primary me-2"></i>License Expiry Date
-                            </label>
-                            <p class="form-control-plaintext">@Model.LicenseExpiryDate.ToString("MMMM dd, yyyy")</p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">License Type</label>
+                                <p class="mb-0">@Model.LicenseType</p>
+                            </div>
                         </div>
                     </div>
-
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-birthday-cake text-primary me-2"></i>Date of Birth
-                            </label>
-                            <p class="form-control-plaintext">@Model.DateOfBirth.ToString("MMMM dd, yyyy")</p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">License Expiry Date</label>
+                                <p class="mb-0">
+                                    <span class="badge @(Model.LicenseExpiryDate < DateTime.Now ? "bg-danger" : "bg-success")">
+                                        @Model.LicenseExpiryDate.ToString("MMMM dd, yyyy")
+                                    </span>
+                                </p>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-briefcase text-primary me-2"></i>Years of Experience
-                            </label>
-                            <p class="form-control-plaintext">@Model.YearsOfExperience years</p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Years of Experience</label>
+                                <p class="mb-0">@Model.YearsOfExperience years</p>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-map-marker-alt text-primary me-2"></i>Address
-                            </label>
-                            <p class="form-control-plaintext">@Model.Address</p>
-                        </div>
+            <!-- Address Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map-marker-alt"></i> Address Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted">Complete Address</label>
+                        <p class="mb-0">@Model.Address</p>
                     </div>
+                </div>
+            </div>
 
+            <!-- Employment Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-briefcase"></i> Employment Information
+                    </h5>
+                </div>
+                <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-check-circle text-primary me-2"></i>Status
-                            </label>
-                            <p class="form-control-plaintext">
-                                <span class="badge badge-@(Model.Status == Cargo.Domain.Enums.DriverStatus.Active ? "bg-success" : "bg-secondary")">
-                                    @Model.Status
-                                </span>
-                            </p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Status</label>
+                                <p class="mb-0">
+                                    <span class="badge @(Model.Status == Cargo.Domain.Enums.DriverStatus.Active ? "bg-success" : "bg-secondary")">
+                                        @Model.Status
+                                    </span>
+                                </p>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-building text-primary me-2"></i>Company
-                            </label>
-                            <p class="form-control-plaintext">@Model.CompanyId</p>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Company</label>
+                                <p class="mb-0">@Model.CompanyId</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -123,48 +152,81 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
+            <!-- Quick Actions Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
                     <h5 class="mb-0">
                         <i class="fas fa-cogs"></i> Quick Actions
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-grid gap-3">
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
                             <i class="fas fa-edit"></i> Edit Driver
                         </a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-lg" onclick="return confirm('Are you sure you want to delete this driver? This action cannot be undone.');">
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this driver? This action cannot be undone.');">
                             <i class="fas fa-trash"></i> Delete Driver
                         </a>
-                        <a asp-action="Index" class="btn btn-secondary btn-lg">
+                        <a asp-action="Index" class="btn btn-secondary">
                             <i class="fas fa-list"></i> Back to List
                         </a>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-secondary text-white">
+            <!-- Summary Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-chart-bar"></i> Summary
+                        <i class="fas fa-info-circle"></i> Summary
                     </h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled">
                         <li class="mb-2">
-                            <strong>Driver ID:</strong> @Model.Id.ToString().Substring(0, 8)...
+                            <strong>Driver ID:</strong> @Model.Id
                         </li>
                         <li class="mb-2">
-                            <strong>License Expires:</strong> 
-                            <span class="text-@(Model.LicenseExpiryDate < DateTime.Now ? "danger" : "success")">
-                                @Model.LicenseExpiryDate.ToString("MMM dd, yyyy")
+                            <strong>License Status:</strong>
+                            <span class="badge @(Model.LicenseExpiryDate < DateTime.Now ? "bg-danger" : "bg-success")">
+                                @(Model.LicenseExpiryDate < DateTime.Now ? "Expired" : "Valid")
                             </span>
                         </li>
                         <li class="mb-2">
-                            <strong>Experience:</strong> @Model.YearsOfExperience years
+                            <strong>Experience Level:</strong>
+                            <span class="badge @(Model.YearsOfExperience > 5 ? "bg-success" : Model.YearsOfExperience > 2 ? "bg-warning" : "bg-info")">
+                                @(Model.YearsOfExperience > 5 ? "Experienced" : Model.YearsOfExperience > 2 ? "Intermediate" : "Entry Level")
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Account Created:</strong> @DateTime.Now.ToString("MMM dd, yyyy")
                         </li>
                     </ul>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Statistics
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <h4 class="text-primary">@Model.YearsOfExperience</h4>
+                                <small class="text-muted">Years Experience</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <h4 class="text-success">@Model.LicenseType</h4>
+                                <small class="text-muted">License Type</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -175,6 +237,7 @@
     <style>
         .card {
             border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
         }
         .card-header {
             border-radius: 0.5rem 0.5rem 0 0 !important;
@@ -182,6 +245,10 @@
         .badge {
             font-size: 0.9em;
             padding: 0.5em 0.75em;
+        }
+        .form-label {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
         }
     </style>
 }
@@ -191,6 +258,9 @@
         $(document).ready(function() {
             // Add any interactive features here
             $('[data-toggle="tooltip"]').tooltip();
+            
+            // Animate cards on load
+            $('.card').hide().fadeIn(500);
         });
     </script>
 }
